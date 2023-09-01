@@ -1,0 +1,487 @@
+.login-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mural-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f6f6f6;
+    display: flex;
+    flex-direction: column;
+}
+
+.login-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, rgb(63, 63, 66), rgb(71, 14, 64));
+}
+
+.login-content {
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 300px;
+    padding: 20px;
+    background-color: #b9aebd;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.login-heading {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-label {
+    color: #333;
+    font-size: 14px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+.login-button {
+    padding: 10px;
+    background-color: #4caf50;
+    color: #fff;
+    font-size: 14px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.login-button:hover {
+    background-color: #45a049;
+}
+
+.signup-link {
+    color: rgb(132, 0, 255);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.back-button {
+    padding: 10px;
+    background-color: #cccccc;
+    color: #fff;
+    font-size: 14px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.back-button:hover {
+    background-color: #999;
+}
+
+.login-heading {
+    color: #333;
+    font-size: 28px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.login-subheading {
+    color: #333;
+    font-size: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.publicacoes-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.dados-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100vw;
+}
+
+.publicacao-container {
+    background-color: #f2f2f2;
+    padding: 10px;
+    margin-bottom: 10px;
+    min-height: 300px;
+}
+
+.publicacao {
+    background-color: #f2f2f2;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-height: 150px;
+    position: relative;
+}
+
+.publicacao h2 {
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+.publicacao p {
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.publicacao .read-more {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    color: #007bff;
+    cursor: pointer;
+}
+
+
+
+.input-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.texto-opaco {
+    opacity: 0.5;
+}
+
+.espaco-publicacoes {
+    height: 20px;
+}
+
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.input-group {
+    margin-bottom: 10px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input[type='text'],
+textarea {
+    width: 100%;
+    padding: 5px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+}
+
+button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+button[type='submit'] {
+    background-color: #28a745;
+}
+
+button[type='submit']:hover {
+    background-color: #218838;
+}
+
+
+.mural-container {
+    height: 100vh;
+    overflow-y: scroll;
+}
+
+.input-container {
+    display: flex;
+    background-color: #f5f5f5;
+    padding: 10px;
+    z-index: 1;
+    min-width: 696px;
+    border: 1px solid #757575;
+}
+
+.publicacao {
+    width: 100%;
+    min-width: 350px;
+    min-height: 150px;
+    max-height: 200px;
+    overflow: auto;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+@media (min-width: 768px) {
+    .publicacao {
+        width: 45%;
+    }
+}
+
+@media (min-width: 992px) {
+    .publicacao {
+        width: 30%;
+    }
+}
+
+#sentinela {
+    width: 100%;
+    height: 100px;
+    background-color: red;
+}
+
+.popup-open {
+    background-color: rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+.popup-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.confirmar-button {
+    background-color: green;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+.voltar-button {
+    background-color: gray;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+
+/* Estilos para o hypertext "Ver mais" */
+.ver-mais-button {
+    color: blue;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.topMenu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    background: linear-gradient(to right, rgb(66, 66, 63), rgb(71, 14, 64));
+}
+
+.centered-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px;
+}
+
+.centered-buttons button {
+    margin: 0 5px;
+    padding: 5px 10px;
+    height: 30px;
+}
+
+.menu-button {
+    padding: 30px 20px;
+}
+
+.search-bar {
+    padding: 500px;
+    border: none;
+    border-radius: 999px;
+    font-size: 14px;
+    height: 25px;
+}
+
+.publicacao-info {
+    font-size: 12px;
+    color: gray;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid #ccc;
+    padding-top: 8px;
+}
+
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.combo-box-container {
+    position: relative;
+    display: inline-block;
+}
+
+.combo-box {
+    appearance: none;
+    background-color: rgb(71, 14, 64);
+    /*border-radius: 5px;*/
+    padding: 8px 12px;
+    font-size: 14px;
+    color: #ffffff;
+    width: 200px;
+    cursor: pointer;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.combo-box::after {
+    content: '\25BC';
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+}
+
+.combo-box:hover {
+    border-color: #666;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.combo-box:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+}
+
+.tab-buttons {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.tab-button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #f0f0f0;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.tab-button.active {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.tab-button:hover {
+    background-color: #ccc;
+}
+
+.menu-opcoes {
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 5px;
+    overflow: auto;
+}
+
+.menu-opcoes div {
+    padding: 10px;
+    cursor: pointer;
+    text-align: left;
+}
+
+.menu-opcoes div:hover {
+    background-color: #ddd;
+}
