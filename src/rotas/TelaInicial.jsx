@@ -9,6 +9,7 @@ const MuralDePublicacoes = () => {
     const [exibirPopup, setExibirPopup] = useState(false);
     const [expandedContent, setExpandedContent] = useState({});
     const [expandedOption, setExpandedOption] = useState(null);
+    const [file, setFile] = useState(null);
     const publicacoesContainerRef = useRef(null);
 
 
@@ -18,18 +19,13 @@ const MuralDePublicacoes = () => {
                 setCarregando(true);
                 const response = await axios.get(`http://localhost:8080/publicacoes?page=${pagina}`);
                 const novasPublicacoes = response.data;
+                setPublicacoes((prevPublicacoes) => {
+                    const novasPublicacoesFiltradas = novasPublicacoes.filter(
+                        (publicacao) => !prevPublicacoes.some((prevPublicacao) => prevPublicacao.idPublicacao === publicacao.idPublicacao)
+                    );
+                    return [...prevPublicacoes, ...novasPublicacoesFiltradas];
+                });
 
-                const paginas = Math.ceil(novasPublicacoes.length / 4);
-                const paginaAtual = publicacoes.length / 4 + 1;
-
-                if (paginaAtual <= paginas) {
-                    setPublicacoes((prevPublicacoes) => {
-                        const novasPublicacoesFiltradas = novasPublicacoes.filter(
-                            (publicacao) => !prevPublicacoes.some((prevPublicacao) => prevPublicacao.id === publicacao.idPublicacao)
-                        );
-                        return [...prevPublicacoes, ...novasPublicacoesFiltradas];
-                    });
-                }
             } catch (error) {
                 console.error('Erro ao buscar as publicações:', error);
             } finally {
@@ -122,25 +118,56 @@ const MuralDePublicacoes = () => {
         document.body.classList.remove('popup-open');
     };
 
-    const postar = () => {
-        const titulo = document.getElementById('titulo').value;
-        const conteudo = document.getElementById('conteudo').value;
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        postar();
+    };
+
+    const postar = async () => {
+        const tituloElement = document.getElementById('titulo');
+        const conteudoElement = document.getElementById('conteudo');
+        const tituloValue = tituloElement ? tituloElement.value : "";
+        const conteudoValue = conteudoElement ? conteudoElement.value : "";
 
         const novaPublicacao = {
             id: publicacoes.length + 1,
-            titulo,
-            conteudo,
+            titulo: tituloValue,
+            conteudo: conteudoValue,
             quantidadeLikes: 0
         };
 
         setPublicacoes((prevPublicacoes) => [novaPublicacao, ...prevPublicacoes]);
 
-        fecharPopup();
-    };
+        if (file) {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = async function () {
+                const base64 = reader.result.split(',')[1];
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        postar();
+                try {
+                    await axios.post('http://localhost:8080/publicacoes', {
+                        idPublicacao: null,
+                        idPessoa: null,
+                        dataCriacao: null,
+                        dataAtualizacao: null,
+                        conteudo: conteudoValue,
+                        titulo: tituloValue,
+                        quantidadeLikes: 0,
+                        img: base64
+                    });
+
+                    console.log("Dados enviados com sucesso!");
+
+                    if (file) {
+                        setFile(null);
+                    }
+
+                    fecharPopup();
+                } catch (error) {
+                    console.error("Erro ao enviar os dados:", error);
+                }
+            };
+        }
     };
 
     useEffect(() => {
@@ -157,6 +184,13 @@ const MuralDePublicacoes = () => {
 
     const adicionarComentario = (publicacaoId) => {
 
+    };
+
+    const handleImageChange = (event) => {
+        const selectedFile = event.target.files[0];
+        if (selectedFile) {
+            setFile(selectedFile);
+        }
     };
 
     return (
@@ -196,6 +230,7 @@ const MuralDePublicacoes = () => {
                                 truncateText(publicacao.conteudo, 800)
                             )}
                         </p>
+                        {publicacao.img && <img src={`data:image/jpeg;base64,${publicacao.img}`} alt="Imagem da publicação" className="publicacao-imagem" />}
                         {publicacao.conteudo.length > 400 && (
                             <button
                                 onClick={() =>
@@ -223,6 +258,7 @@ const MuralDePublicacoes = () => {
                 <li id="sentinela"></li>
             </div>
 
+
             {exibirPopup && (
                 <div className="popup-overlay">
                     <div className="popup-container">
@@ -244,6 +280,11 @@ const MuralDePublicacoes = () => {
                                     <label>
                                         <input type="radio" name="tipo" value="feedback" /> Feedback
                                     </label>
+                                </div>
+                                {/* Adicionado campo para fazer upload de imagem */}
+                                <div className="form-group">
+                                    <label htmlFor="imagem">Imagem: </label>
+                                    <input type="file" id="imagem" accept="image/*" onChange={handleImageChange} />
                                 </div>
                                 <div className="form-group button-group">
                                     <button type="submit" className="confirmar-button">

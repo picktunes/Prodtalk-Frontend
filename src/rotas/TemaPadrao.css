@@ -9,20 +9,6 @@
     justify-content: center;
 }
 
-.mural-container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f6f6f6;
-    display: flex;
-    flex-direction: column;
-}
 
 .login-background {
     position: absolute;
@@ -130,14 +116,55 @@
     text-align: center;
 }
 
+.mural-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f6f6f6;
+    flex-direction: column;
+}
+
 .publicacoes-container {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
     width: 100vw;
     height: 100vh;
-    overflow-y: auto;
+    overflow-x: auto;
+}
+
+.publicacao {
+    background-color: #f2f2f2;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    position: relative;
+    min-height: 150px;
+    height: auto;
+    flex-shrink: 0;
+}
+
+.publicacao-imagem {
+    max-width: 600px;
+    /* limita a largura da imagem a 500px */
+    max-height: 600px;
+    /* limita a altura da imagem a 500px */
+    display: block;
+    /* remove qualquer espaço extra ao redor da imagem */
+    margin: auto;
+    /* centraliza a imagem no container (assumindo que seu container está alinhado ao centro) */
+    width: auto;
+    /* ajusta automaticamente a largura enquanto mantém a proporção */
+    height: auto;
+    /* ajusta automaticamente a altura enquanto mantém a proporção */
 }
 
 .dados-container {
@@ -154,17 +181,6 @@
     min-height: 300px;
 }
 
-.publicacao {
-    background-color: #f2f2f2;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    max-height: 150px;
-    position: relative;
-}
-
 .publicacao h2 {
     font-size: 18px;
     margin-bottom: 8px;
@@ -175,15 +191,6 @@
     line-height: 1.5;
     margin-bottom: 10px;
 }
-
-.publicacao .read-more {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    color: #007bff;
-    cursor: pointer;
-}
-
 
 
 .input-content {
@@ -272,16 +279,6 @@ button[type='submit']:hover {
     border: 1px solid #757575;
 }
 
-.publicacao {
-    width: 100%;
-    min-width: 350px;
-    min-height: 150px;
-    max-height: 200px;
-    overflow: auto;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 10px;
-}
 
 @media (min-width: 768px) {
     .publicacao {
@@ -390,6 +387,7 @@ button[type='submit']:hover {
     justify-content: space-between;
     border-top: 1px solid #ccc;
     padding-top: 8px;
+    height: auto;
 }
 
 .popup-overlay {
@@ -474,6 +472,7 @@ button[type='submit']:hover {
     z-index: 1;
     border-radius: 5px;
     overflow: auto;
+    height: auto;
 }
 
 .menu-opcoes div {
