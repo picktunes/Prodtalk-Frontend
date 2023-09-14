@@ -209,54 +209,64 @@ const MuralDePublicacoes = () => {
                     <div key={`${publicacao.idPublicacao}-${index}`} className="publicacao">
                         <div className="publicacao-options-button" onClick={() => abrirMenuOpcoes(publicacao.idPublicacao)}>
                             <span>...</span>
+                            {expandedOption === publicacao.idPublicacao && (
+                                <div className="menu-opcoes">
+                                    <div onClick={() => console.log('Opção 1')}>
+                                        Salvar publicação
+                                    </div>
+                                    <div onClick={() => console.log('Opção 2')}>
+                                        Denunciar
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                        {expandedOption === publicacao.idPublicacao && (
-                            <div className="menu-opcoes">
-                                <div onClick={() => console.log('Opção 1')}>
-                                    Salvar publicação
-                                </div>
-                                <div onClick={() => console.log('Opção 2')}>
-                                    Denunciar
-                                </div>
-                            </div>
-                        )}
                         <div className="publicacao-header">
-                            <p>{publicacao.titulo}</p>
+                            <div className="publicacao-autor">{publicacao.pessoa.nomeCompleto}</div>
+                            <h2 className="publicacao-titulo">{publicacao.titulo}</h2>
                         </div>
+
                         <p>
                             {expandedContent[publicacao.idPublicacao] ? (
                                 publicacao.conteudo
                             ) : (
-                                truncateText(publicacao.conteudo, 800)
+                                truncateText(publicacao.conteudo, 300)
                             )}
+                            {publicacao.conteudo.length > 600 && (
+                                <a
+                                    href="#"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        expandedContent[publicacao.idPublicacao]
+                                            ? recolherConteudo(publicacao.idPublicacao)
+                                            : expandirConteudo(publicacao.idPublicacao);
+                                    }}
+                                    className="ver-mais-button"
+                                >
+                                    {expandedContent[publicacao.idPublicacao] ? 'Ver menos' : 'Ver mais'}
+                                </a>
+                            )}
+
                         </p>
+
                         {publicacao.img && <img src={`data:image/jpeg;base64,${publicacao.img}`} alt="Imagem da publicação" className="publicacao-imagem" />}
-                        {publicacao.conteudo.length > 400 && (
-                            <button
-                                onClick={() =>
-                                    expandedContent[publicacao.idPublicacao]
-                                        ? recolherConteudo(publicacao.idPublicacao)
-                                        : expandirConteudo(publicacao.idPublicacao)
-                                }
-                                className="ver-mais-button"
-                            >
-                                {expandedContent[publicacao.idPublicacao] ? 'Ver menos' : 'Ver mais'}
-                            </button>
-                        )}
-                        <div className="publicacao-info">
+
+                        < div className="publicacao-info" >
                             <span>{publicacao.quantidadeLikes} likes</span>
                             <button onClick={() => adicionarComentario(publicacao.idPublicacao)}>Comentários</button>
                         </div>
                     </div>
-                ))}
+                ))
+                }
                 {carregando && <h4>Carregando...</h4>}
-                {publicacoes.length > pagina * 4 && (
-                    <button onClick={carregarMaisPublicacoes} disabled={carregando}>
-                        Carregar Mais
-                    </button>
-                )}
+                {
+                    publicacoes.length > pagina * 4 && (
+                        <button onClick={carregarMaisPublicacoes} disabled={carregando}>
+                            Carregar Mais
+                        </button>
+                    )
+                }
                 <li id="sentinela"></li>
-            </div>
+            </div >
 
 
             {exibirPopup && (
@@ -299,7 +309,7 @@ const MuralDePublicacoes = () => {
                     </div>
                 </div>
             )}
-        </div>
+        </div >
     );
 };
 
