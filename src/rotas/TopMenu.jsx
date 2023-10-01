@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 const TopMenu = () => {
     const navigate = useNavigate();
     const containerRef = useRef(null);
-    const [selectedOption, setSelectedOption] = useState(null);
+    const [selectedOption, setSelectedOption] = useState('');
 
     useEffect(() => {
         const storedUser = localStorage.getItem('nomeCompleto');
@@ -65,7 +65,9 @@ const TopMenu = () => {
                         value={selectedOption}
                         onChange={handleOptionChange}
                     >
-                        <option value="">{selectedOption || ""}</option>
+                        <option value="">{selectedOption}</option>
+
+
                         <option value="exit">Sair</option>
                     </select>
                 </div>

@@ -1,42 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import TopMenu from './TopMenu';
+import likeImage from '../assets/like.png';
+import likedImage from '../assets/liked.png';
+
 
 const MuralDePublicacoes = () => {
     const [publicacoes, setPublicacoes] = useState([]);
     const [pagina, setPagina] = useState(1);
-    const [carregando, setCarregando] = useState(false);
     const [exibirPopup, setExibirPopup] = useState(false);
     const [expandedContent, setExpandedContent] = useState({});
     const [expandedOption, setExpandedOption] = useState(null);
     const [file, setFile] = useState(null);
     const publicacoesContainerRef = useRef(null);
+    const paginaRef = useRef(1);
+    const carregandoRef = useRef(false);
+    const [curtidasUsuario, setCurtidasUsuario] = useState(new Set());
 
 
     useEffect(() => {
-        const fetchPublicacoes = async () => {
-            try {
-                setCarregando(true);
-                const response = await axios.get(`http://localhost:8080/publicacoes?page=${pagina}`);
-                const novasPublicacoes = response.data;
-                setPublicacoes((prevPublicacoes) => {
-                    const novasPublicacoesFiltradas = novasPublicacoes.filter(
-                        (publicacao) => !prevPublicacoes.some((prevPublicacao) => prevPublicacao.idPublicacao === publicacao.idPublicacao)
-                    );
-                    return [...prevPublicacoes, ...novasPublicacoesFiltradas];
-                });
-
-            } catch (error) {
-                console.error('Erro ao buscar as publicações:', error);
-            } finally {
-                setCarregando(false);
-            }
-        };
-
-        fetchPublicacoes();
-    }, [pagina]);
-
-    useEffect(() => {
+        console.log("Componente montado / Atualizado!");
         const intersectionObserver = new IntersectionObserver(
             (entries) => {
                 if (entries.some((entry) => entry.isIntersecting)) {
@@ -52,6 +35,37 @@ const MuralDePublicacoes = () => {
         };
     }, []);
 
+    const carregarMaisPublicacoes = () => {
+        console.log("carregarMaisPublicacoes chamada");
+        fetchPublicacoes();
+    };
+
+    const fetchPublicacoes = async () => {
+        console.log("fetchPublicacoes chamada");
+        if (carregandoRef.current) {
+            return;
+        }
+
+        try {
+            carregandoRef.current = true;
+
+            const response = await axios.get(`http://localhost:8080/publicacoes?page=${paginaRef.current}`);
+
+            if (response.status === 200) {
+                const novasPublicacoes = response.data;
+                setPublicacoes(prevPublicacoes => [...prevPublicacoes, ...novasPublicacoes]);
+                paginaRef.current = paginaRef.current + 1;
+            } else {
+                console.error('Erro ao buscar as publicações: Status da resposta:', response.status);
+            }
+        } catch (error) {
+            console.error('Erro ao buscar as publicações:', error);
+        } finally {
+            carregandoRef.current = false;
+        }
+    };
+
+
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (expandedOption && !event.target.closest('.menu-opcoes') && !event.target.closest('.publicacao-options-button')) {
@@ -66,13 +80,10 @@ const MuralDePublicacoes = () => {
         };
     }, [expandedOption]);
 
-    const carregarMaisPublicacoes = () => {
-        if (!carregando) {
-            setPagina((prevPagina) => prevPagina + 1);
-        }
-    };
-
     const truncateText = (text, maxLength) => {
+        if (!text) {
+            return '';
+        }
         if (text.length <= maxLength) {
             return text;
         }
@@ -119,11 +130,13 @@ const MuralDePublicacoes = () => {
     };
 
     const handleSubmit = (event) => {
+        console.log("Formulário submetido");
         event.preventDefault();
         postar();
     };
 
     const postar = async () => {
+        console.log("postar chamada");
         const tituloElement = document.getElementById('titulo');
         const conteudoElement = document.getElementById('conteudo');
         const tituloValue = tituloElement ? tituloElement.value : "";
@@ -136,37 +149,57 @@ const MuralDePublicacoes = () => {
             quantidadeLikes: 0
         };
 
-        setPublicacoes((prevPublicacoes) => [novaPublicacao, ...prevPublicacoes]);
+        //setPublicacoes((prevPublicacoes) => [novaPublicacao, ...prevPublicacoes]);
 
+        let base64 = null;
         if (file) {
             const reader = new FileReader();
             reader.readAsDataURL(file);
-            reader.onload = async function () {
-                const base64 = reader.result.split(',')[1];
+            await new Promise((resolve) => {
+                reader.onload = function () {
+                    base64 = reader.result.split(',')[1];
+                    resolve();
+                };
+            });
+        }
 
-                try {
-                    await axios.post('http://localhost:8080/publicacoes', {
-                        idPublicacao: null,
-                        idPessoa: null,
-                        dataCriacao: null,
-                        dataAtualizacao: null,
-                        conteudo: conteudoValue,
-                        titulo: tituloValue,
-                        quantidadeLikes: 0,
-                        img: base64
-                    });
+        try {
+            await axios.post('http://localhost:8080/publicacoes', {
+                idPublicacao: null,
+                idPessoa: null,
+                dataCriacao: null,
+                dataAtualizacao: null,
+                conteudo: conteudoValue,
+                titulo: tituloValue,
+                quantidadeLikes: 0,
+                img: base64
+            });
 
-                    console.log("Dados enviados com sucesso!");
+            console.log("Dados enviados com sucesso!");
 
-                    if (file) {
-                        setFile(null);
-                    }
+            if (file) {
+                setFile(null);
+            }
 
-                    fecharPopup();
-                } catch (error) {
-                    console.error("Erro ao enviar os dados:", error);
-                }
-            };
+            fecharPopup();
+            fetchPublicacoes();
+        } catch (error) {
+            console.error("Erro ao enviar os dados:", error);
+        }
+    };
+
+    const handleImageChange = (event) => {
+        const input = event.target;
+        const selectedFile = input.files[0];
+        if (selectedFile) {
+            const fileType = selectedFile.type;
+            const validImageTypes = ['image/jpeg', 'image/png'];
+            if (!validImageTypes.includes(fileType)) {
+                alert('Por favor, carregue um arquivo PNG ou JPG!');
+                input.value = '';
+                return;
+            }
+            setFile(selectedFile);
         }
     };
 
@@ -182,16 +215,60 @@ const MuralDePublicacoes = () => {
         }
     }, [publicacoes]);
 
-    const adicionarComentario = (publicacaoId) => {
+    const adicionarCurtida = async (idPublicacao) => {
+        try {
+            console.log("adicionarCurtida chamada", idPublicacao);
+            const idPessoa = Number(localStorage.getItem('idPessoa'));
 
-    };
+            const publicacaoEncontrada = publicacoes.find(publicacao => publicacao.idPublicacao === idPublicacao);
 
-    const handleImageChange = (event) => {
-        const selectedFile = event.target.files[0];
-        if (selectedFile) {
-            setFile(selectedFile);
+            const requestBody = {
+                idPublicacao: publicacaoEncontrada.idPublicacao,
+                idPessoa: idPessoa
+            };
+
+            const response = await axios.post('http://localhost:8080/publicacao-curtida', requestBody);
+
+            if (response.status === 200) {
+                publicacaoEncontrada.publicacaoCurtidas = response.data;
+
+                setPublicacoes([...publicacoes]);
+
+                setCurtidasUsuario((prevCurtidas) => {
+                    const novaCurtida = new Set(prevCurtidas);
+                    if (novaCurtida.has(idPublicacao)) {
+                        novaCurtida.delete(idPublicacao);
+                    } else {
+                        novaCurtida.add(idPublicacao);
+                    }
+                    return novaCurtida;
+                });
+            } else {
+                console.error('Erro ao curtir/descurtir a publicação:', response.data);
+            }
+        } catch (error) {
+            console.error('Erro ao enviar os dados:', error);
         }
     };
+
+
+
+    useEffect(() => {
+        const idPessoaAtual = Number(localStorage.getItem('idPessoa'));
+
+        const publicacoesCurtidas = new Set();
+
+        publicacoes.forEach(publicacao => {
+            publicacao.publicacaoCurtidas.forEach(curtida => {
+                if (curtida.pessoa.idPessoa === idPessoaAtual) {
+                    publicacoesCurtidas.add(publicacao.idPublicacao);
+                }
+            });
+        });
+
+        setCurtidasUsuario(publicacoesCurtidas);
+    }, [publicacoes]);
+
 
     return (
         <div className="mural-container" style={{ overflow: 'hidden', overflowY: 'auto' }}>
@@ -225,46 +302,58 @@ const MuralDePublicacoes = () => {
                             <h2 className="publicacao-titulo">{publicacao.titulo}</h2>
                         </div>
 
-                        <p>
-                            {expandedContent[publicacao.idPublicacao] ? (
-                                publicacao.conteudo
-                            ) : (
-                                truncateText(publicacao.conteudo, 300)
+                        <div className="texto">
+                            {publicacao.conteudo && (
+                                <>
+                                    {expandedContent[publicacao.idPublicacao] ? (
+                                        publicacao.conteudo
+                                    ) : (
+                                        truncateText(publicacao.conteudo, 300)
+                                    )}
+                                    {publicacao.conteudo.length > 600 && (
+                                        <a
+                                            href="#"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                expandedContent[publicacao.idPublicacao]
+                                                    ? recolherConteudo(publicacao.idPublicacao)
+                                                    : expandirConteudo(publicacao.idPublicacao);
+                                            }}
+                                            className="ver-mais-button"
+                                        >
+                                            {expandedContent[publicacao.idPublicacao] ? 'Ver menos' : 'Ver mais'}
+                                        </a>
+                                    )}
+                                </>
                             )}
-                            {publicacao.conteudo.length > 600 && (
-                                <a
-                                    href="#"
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        expandedContent[publicacao.idPublicacao]
-                                            ? recolherConteudo(publicacao.idPublicacao)
-                                            : expandirConteudo(publicacao.idPublicacao);
-                                    }}
-                                    className="ver-mais-button"
-                                >
-                                    {expandedContent[publicacao.idPublicacao] ? 'Ver menos' : 'Ver mais'}
-                                </a>
-                            )}
-
-                        </p>
+                        </div>
 
                         {publicacao.img && <img src={`data:image/jpeg;base64,${publicacao.img}`} alt="Imagem da publicação" className="publicacao-imagem" />}
 
-                        < div className="publicacao-info" >
-                            <span>{publicacao.quantidadeLikes} likes</span>
+                        <div className="publicacao-info">
+
+                            <div className="curtidas-container">
+                                <button
+                                    onClick={() => adicionarCurtida(publicacao.idPublicacao)}
+                                    style={{ backgroundColor: 'transparent', border: 'none', padding: 0, position: 'relative' }}
+                                >
+                                    <div className="image-background"></div>
+                                    <img
+                                        src={curtidasUsuario.has(publicacao.idPublicacao) ? likedImage : likeImage}
+                                        alt="Curtir"
+                                        className="like-image"
+                                    />
+                                </button>
+                                <span className="separator">•</span>
+                                <span>{publicacao.publicacaoCurtidas.length} curtidas</span>
+                            </div>
+
                             <button onClick={() => adicionarComentario(publicacao.idPublicacao)}>Comentários</button>
                         </div>
                     </div>
                 ))
                 }
-                {carregando && <h4>Carregando...</h4>}
-                {
-                    publicacoes.length > pagina * 4 && (
-                        <button onClick={carregarMaisPublicacoes} disabled={carregando}>
-                            Carregar Mais
-                        </button>
-                    )
-                }
+                {<h4>Carregando...</h4>}
                 <li id="sentinela"></li>
             </div >
 
@@ -291,10 +380,9 @@ const MuralDePublicacoes = () => {
                                         <input type="radio" name="tipo" value="feedback" /> Feedback
                                     </label>
                                 </div>
-                                {/* Adicionado campo para fazer upload de imagem */}
                                 <div className="form-group">
-                                    <label htmlFor="imagem">Imagem: </label>
-                                    <input type="file" id="imagem" accept="image/*" onChange={handleImageChange} />
+                                    <label htmlFor="imagem">Imagem(pgn ou jpg): </label>
+                                    <input type="file" id="imagem" accept="image/png, image/jpeg" onChange={handleImageChange} />
                                 </div>
                                 <div className="form-group button-group">
                                     <button type="submit" className="confirmar-button">
