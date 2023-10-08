@@ -140,6 +140,35 @@
     right: 10px;
 }
 
+.comentario-options-button {
+    position: absolute;
+    /* Definir posição absoluta */
+    top: 0;
+    /* Alinhar no topo do contêiner pai */
+    right: 0;
+    /* Alinhar à direita do contêiner pai */
+    cursor: pointer;
+    /* Alterar o cursor ao passar o mouse */
+}
+
+.comentario-menu-opcoes {
+    display: none;
+    /* Ocultar o menu de opções por padrão */
+    position: absolute;
+    top: 100%;
+    /* Alinhar abaixo do botão de opções */
+    right: 0;
+    /* Alinhar à direita */
+    background-color: #fff;
+    /* Cor de fundo */
+    border: 1px solid #ccc;
+    /* Borda */
+    padding: 8px;
+    /* Espaçamento interno */
+    z-index: 1;
+    /* Elevar acima de outros elementos */
+}
+
 .publicacoes-container {
     display: flex;
     flex-direction: column;
@@ -178,8 +207,10 @@
 }
 
 .publicacao-imagem {
-    max-width: 630px;
-    max-height: 600px;
+    max-width: 100%;
+    /* Define a largura máxima como 100% do contêiner pai */
+    max-height: 100%;
+    /* Define a altura máxima como 100% do contêiner pai */
     display: block;
     margin: auto;
     width: auto;
@@ -402,10 +433,21 @@ button[type='submit']:hover {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding-top: 20px;
+    height: auto;
+}
+
+.comentarios-info {
+    font-size: 12px;
+    color: rgb(3, 2, 2);
+    margin-top: 8px;
+    align-items: center;
+    justify-content: space-between;
     border-top: 1px solid #ccc;
     padding-top: 8px;
     height: auto;
 }
+
 
 .popup-overlay {
     position: fixed;
@@ -502,7 +544,18 @@ button[type='submit']:hover {
     background-color: #ddd;
 }
 
-.curtidas-container {
+.comentario-menu-opcoes {
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 5px;
+    overflow: visible;
+    height: auto;
+}
+
+.botoes-container {
     display: flex;
     align-items: center;
     gap: 5px;
@@ -513,6 +566,54 @@ button[type='submit']:hover {
     height: 20px;
 }
 
+.comentario-image {
+    width: 20px;
+    height: 20px;
+}
+
 .separator {
     margin: 0 5px;
+}
+
+.comentario {
+    margin-left: 0;
+    padding: 8px;
+    /*position: relative;*/
+}
+
+.comentario-autor {
+    font-weight: bold;
+}
+
+.comment-input-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.comment-input {
+    flex-grow: 1;
+    margin-right: 8px;
+}
+
+.comment-button {
+    flex-shrink: 0;
+}
+
+.publicacao-comentarios hr {
+    border: none;
+    border-top: 1px solid #ccc;
+    margin: 10px 0;
+}
+
+.respostas-resposta-nivel-1 {
+    margin-left: 16px;
+}
+
+.respostas-resposta-nivel-2 {
+    margin-left: 32px;
+}
+
+.respostas-resposta-nivel-3 {
+    margin-left: 48px;
 }

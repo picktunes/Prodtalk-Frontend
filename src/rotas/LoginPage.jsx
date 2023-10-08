@@ -1,9 +1,10 @@
 import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import React, { useState } from 'react';
 import './TemaPadrao.css';
-import 'react-toastify/dist/ReactToastify.css';
+
 
 const LoginPage = () => {
     const navigate = useNavigate();
@@ -49,6 +50,18 @@ const LoginPage = () => {
                         idCadastro: response.data.data.idCadastro,
                     }
                 }).then(response2 => {
+                    const pessoa = {
+                        idPessoa: response2.data.data.idPessoa,
+                        nomeCompleto: response2.data.data.nomeCompleto,
+                        sexo: response2.data.data.sexo,
+                        idade: response2.data.data.idade,
+                        profissao: response2.data.data.profissao,
+                        //fotoPerfil: null,
+                        biografia: response2.data.data.biografia,
+                        interesses: response2.data.data.interesses,
+                    };
+                    localStorage.setItem('pessoa', JSON.stringify(pessoa));
+
                     fieldsToSet.forEach(fieldName => {
                         const fieldValue = response2.data.data[fieldName];
                         localStorage.setItem(fieldName, fieldValue);

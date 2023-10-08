@@ -3,12 +3,14 @@ import axios from 'axios';
 import TopMenu from './TopMenu';
 import likeImage from '../assets/like.png';
 import likedImage from '../assets/liked.png';
-
+import comentarioImage from '../assets/comentario.png';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const MuralDePublicacoes = () => {
     const [publicacoes, setPublicacoes] = useState([]);
-    const [pagina, setPagina] = useState(1);
     const [exibirPopup, setExibirPopup] = useState(false);
+    const [comentario, setComentario] = useState('');
     const [expandedContent, setExpandedContent] = useState({});
     const [expandedOption, setExpandedOption] = useState(null);
     const [file, setFile] = useState(null);
@@ -16,7 +18,10 @@ const MuralDePublicacoes = () => {
     const paginaRef = useRef(1);
     const carregandoRef = useRef(false);
     const [curtidasUsuario, setCurtidasUsuario] = useState(new Set());
-
+    const [comentarios, setComentarios] = useState({});
+    const [expandedComments, setExpandedComments] = useState({});
+    const [mostrarFormularioComentario, setMostrarFormularioComentario] = useState(false);
+    const [comentarioAberto, setComentarioAberto] = useState(null);
 
     useEffect(() => {
         console.log("Componente montado / Atualizado!");
@@ -36,12 +41,10 @@ const MuralDePublicacoes = () => {
     }, []);
 
     const carregarMaisPublicacoes = () => {
-        console.log("carregarMaisPublicacoes chamada");
         fetchPublicacoes();
     };
 
     const fetchPublicacoes = async () => {
-        console.log("fetchPublicacoes chamada");
         if (carregandoRef.current) {
             return;
         }
@@ -64,7 +67,6 @@ const MuralDePublicacoes = () => {
             carregandoRef.current = false;
         }
     };
-
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -149,8 +151,6 @@ const MuralDePublicacoes = () => {
             quantidadeLikes: 0
         };
 
-        //setPublicacoes((prevPublicacoes) => [novaPublicacao, ...prevPublicacoes]);
-
         let base64 = null;
         if (file) {
             const reader = new FileReader();
@@ -217,7 +217,6 @@ const MuralDePublicacoes = () => {
 
     const adicionarCurtida = async (idPublicacao) => {
         try {
-            console.log("adicionarCurtida chamada", idPublicacao);
             const idPessoa = Number(localStorage.getItem('idPessoa'));
 
             const publicacaoEncontrada = publicacoes.find(publicacao => publicacao.idPublicacao === idPublicacao);
@@ -251,7 +250,148 @@ const MuralDePublicacoes = () => {
         }
     };
 
+    const adicionarComentario = async (publicacaoExterna, idComentarioSuperior, comentarioPublicacao) => {
+        const comentarioRespostaPublicacao = comentarios[idComentarioSuperior];
+        const pessoaString = localStorage.getItem('pessoa');
+        const pessoaParsed = JSON.parse(pessoaString);
 
+        try {
+            let conteudoComentario = comentarioPublicacao ? comentarioPublicacao.trim() : comentarioRespostaPublicacao;
+
+            if (conteudoComentario === undefined || conteudoComentario === null || conteudoComentario.trim() === "") {
+                toast.error("O conteúdo do comentário não pode ser nulo, verifique.");
+                return;
+            }
+
+            const novoComentario = {
+                idComentario: null,
+                pessoa: pessoaParsed,
+                idPublicacao: publicacaoExterna.idPublicacao,
+                idComentarioResposta: idComentarioSuperior,
+                conteudo: conteudoComentario,
+                nrDenuncias: 0,
+                dtCriacaoComent: null,
+                ieAtivo: 1,
+                dtInativo: null,
+            };
+
+            const response = await axios.post('http://localhost:8080/comentario', novoComentario);
+
+            if (response.status === 200) {
+                setComentarios({
+                    ...comentarios,
+                    [idComentarioSuperior]: '',
+                });
+
+
+                const index = publicacoes.findIndex(
+                    (publicacao) => publicacao.idPublicacao === publicacaoExterna.idPublicacao
+                );
+
+                if (index !== -1) {
+                    publicacoes[index].comentarios = response.data;
+                    setPublicacoes([...publicacoes]);
+
+                    console.log('Comentário criado com sucesso:', response.data);
+                } else {
+                    console.error('Publicação não encontrada na lista.');
+                }
+            } else {
+                console.error('Erro ao criar comentário:', response.data);
+            }
+        } catch (error) {
+            console.error('Erro ao enviar os dados do comentário:', error);
+        }
+    };
+
+    function contarComentarios(comentarios) {
+        let count = 0;
+
+        for (const comentario of comentarios) {
+            count++;
+            if (comentario.respostas && comentario.respostas.length > 0) {
+                count += contarComentarios(comentario.respostas);
+            }
+        }
+
+        return count;
+    }
+
+
+    const mostrarComentarios = (publicacaoId) => {
+        setExpandedComments((prevExpandedComments) => {
+            const newExpandedComments = { ...prevExpandedComments };
+
+            Object.keys(newExpandedComments).forEach((key) => {
+                newExpandedComments[key] = false;
+            });
+
+            newExpandedComments[publicacaoId] = true;
+
+            return newExpandedComments;
+        });
+    };
+
+    const toggleFormularioComentario = (comentarioId) => {
+        setMostrarFormularioComentario((prevState) => {
+            return {
+                ...prevState,
+                [comentarioId]: !prevState[comentarioId],
+            };
+        });
+    };
+
+    const renderRespostas = (respostas, nivel, publicacao) => {
+        return (
+            <div className={`respostas-resposta-nivel-${nivel}`}>
+                {respostas.map((resposta) => (
+                    <div key={resposta.idComentario} className="comentario">
+                        <div className="comentario-autor">{resposta.pessoa.nomeCompleto}</div>
+                        <div className="comentario-conteudo">{resposta.conteudo}</div>
+                        <a
+                            href="#"
+                            className="responder-link"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                toggleFormularioComentario(resposta.idComentario);
+                            }}
+                            title="Responder"
+                        >
+                            Responder
+                        </a>
+
+                        {mostrarFormularioComentario[resposta.idComentario] && (
+                            <div className="comment-input-container">
+                                <input
+                                    type="text"
+                                    placeholder="Responder comentário..."
+                                    className="comment-input"
+                                    value={comentarios[resposta.idComentario] || ''}
+                                    onChange={(e) =>
+                                        setComentarios({
+                                            ...comentarios,
+                                            [resposta.idComentario]: e.target.value,
+                                        })
+                                    }
+                                />
+                                <button
+                                    onClick={() => adicionarComentario(publicacao, resposta.idComentario)}
+                                    className="comment-button"
+                                >
+                                    Responder
+                                </button>
+                            </div>
+                        )}
+                        {renderRespostas(resposta.respostas, nivel + 1, publicacao)}
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
+    const getClassForRespostaNivel = (nivel) => {
+        return `resposta-nivel-${nivel}`;
+    };
 
     useEffect(() => {
         const idPessoaAtual = Number(localStorage.getItem('idPessoa'));
@@ -269,6 +409,9 @@ const MuralDePublicacoes = () => {
         setCurtidasUsuario(publicacoesCurtidas);
     }, [publicacoes]);
 
+    const handleComentarioChange = (event) => {
+        setComentario(event.target.value);
+    }
 
     return (
         <div className="mural-container" style={{ overflow: 'hidden', overflowY: 'auto' }}>
@@ -284,55 +427,134 @@ const MuralDePublicacoes = () => {
             <div className="publicacoes-container" ref={publicacoesContainerRef}>
                 {publicacoes.map((publicacao, index) => (
                     <div key={`${publicacao.idPublicacao}-${index}`} className="publicacao">
-                        <div className="publicacao-options-button" onClick={() => abrirMenuOpcoes(publicacao.idPublicacao)}>
-                            <span>...</span>
-                            {expandedOption === publicacao.idPublicacao && (
-                                <div className="menu-opcoes">
-                                    <div onClick={() => console.log('Opção 1')}>
-                                        Salvar publicação
+
+                        {/* Conteúdo da Publicação */}
+                        <div className="publicacao-conteudo">
+                            <div className="publicacao-options-button" onClick={() => abrirMenuOpcoes(publicacao.idPublicacao)}>
+                                <span>...</span>
+                                {expandedOption === publicacao.idPublicacao && (
+                                    <div className="menu-opcoes">
+                                        <div onClick={() => console.log('Opção 1')}>Salvar publicação</div>
+                                        <div onClick={() => console.log('Opção 2')}>Denunciar</div>
                                     </div>
-                                    <div onClick={() => console.log('Opção 2')}>
-                                        Denunciar
+                                )}
+                            </div>
+                            <div className="publicacao-header">
+                                <div className="publicacao-autor">{publicacao.pessoa.nomeCompleto}</div>
+                                <h2 className="publicacao-titulo">{publicacao.titulo}</h2>
+                            </div>
+                            <div className="texto">
+                                {publicacao.conteudo && (
+                                    <>
+                                        {expandedContent[publicacao.idPublicacao] ? (
+                                            publicacao.conteudo
+                                        ) : (
+                                            truncateText(publicacao.conteudo, 300)
+                                        )}
+                                        {publicacao.conteudo.length > 600 && (
+                                            <a
+                                                href="#"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    expandedContent[publicacao.idPublicacao]
+                                                        ? recolherConteudo(publicacao.idPublicacao)
+                                                        : expandirConteudo(publicacao.idPublicacao);
+                                                }}
+                                                className="ver-mais-button"
+                                            >
+                                                {expandedContent[publicacao.idPublicacao] ? 'Ver menos' : 'Ver mais'}
+                                            </a>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                            {publicacao.img && (
+                                <img src={`data:image/jpeg;base64,${publicacao.img}`} alt="Imagem da publicação" className="publicacao-imagem" />
+                            )}
+                        </div>
+
+                        {/* Comentários da Publicação */}
+                        <div className="publicacao-comentarios">
+                            {expandedComments[publicacao.idPublicacao] && (
+                                <div className="comentarios-info">
+
+
+
+                                    {/* Comentário DIRETO NA PUBLICAÇÃO */}
+                                    <div className="comment-input-container">
+                                        <input
+                                            type="text"
+                                            placeholder="Adicione um comentário..."
+                                            className="comment-input"
+                                        />
+                                        <button
+                                            onClick={() => {
+                                                const comentarioInput = document.querySelector('.comment-input');
+                                                const comentario = comentarioInput.value;
+                                                adicionarComentario(publicacao, null, comentario);
+
+                                                comentarioInput.value = '';
+                                            }}
+                                            className="comment-button"
+                                        >
+                                            Adicionar Comentário
+                                        </button>
                                     </div>
+
+
+                                    {publicacao.comentarios.map((comentario) => (
+                                        <div key={comentario.idComentario} className={`comentario ${getClassForRespostaNivel(comentario.nivel)}`}>
+                                            <div className="comentario-autor">{comentario.pessoa.nomeCompleto}</div>
+
+                                            <div className="comentario-conteudo">{comentario.conteudo}</div>
+                                            <a
+                                                href="#"
+                                                className="responder-link"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    toggleFormularioComentario(comentario.idComentario);
+                                                }}
+                                                title="Responder"
+                                            >
+                                                Responder
+                                            </a>
+
+                                            {mostrarFormularioComentario[comentario.idComentario] && (
+                                                <div className="comment-input-container">
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Responder comentário..."
+                                                        className="comment-input"
+                                                        value={comentarios[comentario.idComentario] || ''}
+                                                        onChange={(e) =>
+                                                            setComentarios({
+                                                                ...comentarios,
+                                                                [comentario.idComentario]: e.target.value,
+                                                            })
+                                                        }
+                                                    />
+                                                    <button
+                                                        onClick={() => adicionarComentario(publicacao, comentario.idComentario)}
+                                                        className="comment-button"
+                                                    >
+                                                        Responder
+                                                    </button>
+                                                </div>
+                                            )}
+
+                                            {/* Comentário RESPOSTA ALÉM DO NIVEL 1 */}
+                                            {renderRespostas(comentario.respostas, comentario.nivel, publicacao)}
+                                            <hr />
+                                        </div>
+                                    ))}
                                 </div>
                             )}
                         </div>
-                        <div className="publicacao-header">
-                            <div className="publicacao-autor">{publicacao.pessoa.nomeCompleto}</div>
-                            <h2 className="publicacao-titulo">{publicacao.titulo}</h2>
-                        </div>
 
-                        <div className="texto">
-                            {publicacao.conteudo && (
-                                <>
-                                    {expandedContent[publicacao.idPublicacao] ? (
-                                        publicacao.conteudo
-                                    ) : (
-                                        truncateText(publicacao.conteudo, 300)
-                                    )}
-                                    {publicacao.conteudo.length > 600 && (
-                                        <a
-                                            href="#"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                expandedContent[publicacao.idPublicacao]
-                                                    ? recolherConteudo(publicacao.idPublicacao)
-                                                    : expandirConteudo(publicacao.idPublicacao);
-                                            }}
-                                            className="ver-mais-button"
-                                        >
-                                            {expandedContent[publicacao.idPublicacao] ? 'Ver menos' : 'Ver mais'}
-                                        </a>
-                                    )}
-                                </>
-                            )}
-                        </div>
-
-                        {publicacao.img && <img src={`data:image/jpeg;base64,${publicacao.img}`} alt="Imagem da publicação" className="publicacao-imagem" />}
-
+                        {/* Curtidas e Botões de Ação */}
                         <div className="publicacao-info">
+                            <div className="botoes-container">
 
-                            <div className="curtidas-container">
                                 <button
                                     onClick={() => adicionarCurtida(publicacao.idPublicacao)}
                                     style={{ backgroundColor: 'transparent', border: 'none', padding: 0, position: 'relative' }}
@@ -346,57 +568,73 @@ const MuralDePublicacoes = () => {
                                 </button>
                                 <span className="separator">•</span>
                                 <span>{publicacao.publicacaoCurtidas.length} curtidas</span>
-                            </div>
 
-                            <button onClick={() => adicionarComentario(publicacao.idPublicacao)}>Comentários</button>
+                                <h12></h12>
+
+                                <button
+                                    onClick={() => mostrarComentarios(publicacao.idPublicacao)}
+                                    style={{ backgroundColor: 'transparent', border: 'none', padding: 0, position: 'relative' }}
+                                >
+                                    <div className="image-background"></div>
+                                    <img
+                                        src={comentarioImage}
+                                        alt="Comentar"
+                                        className="like-image"
+                                    />
+
+                                </button>
+                                <span className="separator">•</span>
+                                <span>{contarComentarios(publicacao.comentarios)} comentários</span>
+                            </div>
                         </div>
                     </div>
-                ))
-                }
+                ))}
                 {<h4>Carregando...</h4>}
                 <li id="sentinela"></li>
-            </div >
+            </div>
 
-
-            {exibirPopup && (
-                <div className="popup-overlay">
-                    <div className="popup-container">
-                        <div className="popup">
-                            <h3>Adicionar Publicação</h3>
-                            <form onSubmit={handleSubmit}>
-                                <div className="form-group">
-                                    <label htmlFor="titulo">Título</label>
-                                    <input type="text" id="titulo" />
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="conteudo">Conteúdo</label>
-                                    <textarea id="conteudo"></textarea>
-                                </div>
-                                <div className="form-group">
-                                    <label>
-                                        <input type="radio" name="tipo" value="pergunta" /> Pergunta
-                                    </label>
-                                    <label>
-                                        <input type="radio" name="tipo" value="feedback" /> Feedback
-                                    </label>
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="imagem">Imagem(pgn ou jpg): </label>
-                                    <input type="file" id="imagem" accept="image/png, image/jpeg" onChange={handleImageChange} />
-                                </div>
-                                <div className="form-group button-group">
-                                    <button type="submit" className="confirmar-button">
-                                        Confirmar
-                                    </button>
-                                    <button type="button" onClick={fecharPopup} className="voltar-button">
-                                        Voltar
-                                    </button>
-                                </div>
-                            </form>
+            {
+                exibirPopup && (
+                    <div className="popup-overlay">
+                        <div className="popup-container">
+                            <div className="popup">
+                                <h3>Adicionar Publicação</h3>
+                                <form onSubmit={handleSubmit}>
+                                    <div className="form-group">
+                                        <label htmlFor="titulo">Título</label>
+                                        <input type="text" id="titulo" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="conteudo">Conteúdo</label>
+                                        <textarea id="conteudo"></textarea>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>
+                                            <input type="radio" name="tipo" value="pergunta" /> Pergunta
+                                        </label>
+                                        <label>
+                                            <input type="radio" name="tipo" value="feedback" /> Feedback
+                                        </label>
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="imagem">Imagem(pgn ou jpg): </label>
+                                        <input type="file" id="imagem" accept="image/png, image/jpeg" onChange={handleImageChange} />
+                                    </div>
+                                    <div className="form-group button-group">
+                                        <button type="submit" className="confirmar-button">
+                                            Confirmar
+                                        </button>
+                                        <button type="button" className="cancelar-button" onClick={fecharPopup}>
+                                            Cancelar
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
+            <ToastContainer />
         </div >
     );
 };
