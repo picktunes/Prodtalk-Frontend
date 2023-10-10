@@ -46,6 +46,14 @@
 
 .form-group {
     margin-bottom: 15px;
+    max-width: 300px;
+    /* Defina a largura máxima desejada */
+}
+
+.form-group-senha {
+    margin-bottom: 15px;
+    max-width: 600px;
+    /* Defina a largura máxima desejada */
 }
 
 .form-label {
@@ -142,31 +150,20 @@
 
 .comentario-options-button {
     position: absolute;
-    /* Definir posição absoluta */
     top: 0;
-    /* Alinhar no topo do contêiner pai */
     right: 0;
-    /* Alinhar à direita do contêiner pai */
     cursor: pointer;
-    /* Alterar o cursor ao passar o mouse */
 }
 
 .comentario-menu-opcoes {
     display: none;
-    /* Ocultar o menu de opções por padrão */
     position: absolute;
     top: 100%;
-    /* Alinhar abaixo do botão de opções */
     right: 0;
-    /* Alinhar à direita */
     background-color: #fff;
-    /* Cor de fundo */
     border: 1px solid #ccc;
-    /* Borda */
     padding: 8px;
-    /* Espaçamento interno */
     z-index: 1;
-    /* Elevar acima de outros elementos */
 }
 
 .publicacoes-container {
@@ -345,7 +342,6 @@ button[type='submit']:hover {
 #sentinela {
     width: 100%;
     height: 100px;
-    background-color: red;
 }
 
 .popup-open {
@@ -448,7 +444,6 @@ button[type='submit']:hover {
     height: auto;
 }
 
-
 .popup-overlay {
     position: fixed;
     top: 0;
@@ -461,7 +456,6 @@ button[type='submit']:hover {
     align-items: center;
     justify-content: center;
 }
-
 
 .combo-box-container {
     position: relative;
@@ -616,4 +610,128 @@ button[type='submit']:hover {
 
 .respostas-resposta-nivel-3 {
     margin-left: 48px;
+}
+
+.item-titulo {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #979797;
+}
+
+.item {
+    padding-top: 5px;
+    padding-left: 16px;
+    padding-right: 16px;
+    font-size: 14px;
+}
+
+.link {
+    color: #007BFF;
+    text-decoration: none;
+}
+
+.conteudo-centralizado {
+    box-sizing: initial;
+    width: calc(100vw - 10px);
+    height: calc(100vh - 20px);
+    align-items: stretch;
+    display: flex;
+    flex-direction: row;
+    /*border: 2px solid rgb(1, 78, 1);*/
+    overflow: hidden;
+}
+
+
+.container-centralizador {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 25px);
+    width: 100%;
+    height: 100%;
+    /*border: 2px solid rgb(30, 59, 226);*/
+    overflow: hidden;
+}
+
+.lateral {
+    width: 142px;
+    box-sizing: border-box;
+    height: calc(100vh - 200px);
+    position: sticky;
+}
+
+.conteudo {
+    width: 570px;
+    margin-left: 30px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
+    height: calc(100vh - 200px);
+}
+
+.titulo {
+    font-size: 16px;
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Estilo para as notificações */
+.notificacao {
+    padding: 16px;
+    border-bottom: 1px solid #ddd;
+    /* Cor da borda cinza claro */
+    display: flex;
+    align-items: center;
+}
+
+/* Estilo para o ícone das notificações */
+.icone {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: 12px;
+    background-color: #007BFF;
+    /* Cor de fundo azul para o ícone */
+}
+
+/* Estilo para o título das notificações */
+.titulo-notificacao {
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+/* Estilo para o conteúdo das notificações */
+.conteudo-notificacao {
+    color: #333;
+    /* Cor de texto cinza escuro */
+}
+
+.dados-pessoa-form {
+    margin: 20px;
+    /* Adicione a margem desejada (por exemplo, 20px) */
+}
+
+.label-data-nascimento {
+    margin-bottom: 10px;
+    /* Adicione a margem desejada aqui */
+}
+
+/* CSS para estilizar o botão "X" no canto direito do popup */
+.popup-close-button {
+    position: absolute;
+    top: 10px;
+    /* Distância do topo */
+    right: 10px;
+    /* Distância da direita */
+    background-color: transparent;
+    /* Cor de fundo transparente */
+    border: none;
+    color: gray;
+    /* Cor do ícone "X" */
+    font-size: 24px;
+    /* Tamanho do ícone */
+    cursor: pointer;
 }

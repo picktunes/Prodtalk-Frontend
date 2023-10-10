@@ -5,188 +5,355 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import TopMenu from './TopMenu';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { format } from 'date-fns';
 
 const TelaDadosPessoa = () => {
-    const [nomeCompleto, setNomeCompleto] = useState('');
-    const [idade, setIdade] = useState('');
-    const [sexo, setSexo] = useState('masculino');
-    const [interesses, setInteresses] = useState('');
-    const [profissao, setProfissao] = useState('');
-    const [biografia, setBiografia] = useState('');
-    const [activeTab, setActiveTab] = useState(0);
+    const [conteudoSelecionado, setConteudoSelecionado] = useState('perfil');
+    const [formData, setFormData] = useState({
+        nomeCompleto: '',
+        idade: null,
+        sexo: 'masculino', // Valor padrão
+        interesses: '',
+        profissao: '',
+        biografia: '',
+    });
+    const [showChangePasswordPopup, setShowChangePasswordPopup] = useState(false);
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmNewPassword, setConfirmNewPassword] = useState('');
 
     const navigate = useNavigate();
 
     useEffect(() => {
-        setNomeCompleto(localStorage.getItem('nomeCompleto'));
-        setIdade(localStorage.getItem('idade'));
-        setInteresses(localStorage.getItem('interesses'));
-        setProfissao(localStorage.getItem('profissao'));
-        setBiografia(localStorage.getItem('biografia'));
+        const storedData = {
+            nomeCompleto: localStorage.getItem('nomeCompleto') || '',
+            interesses: localStorage.getItem('interesses') || '',
+            profissao: localStorage.getItem('profissao') || '',
+            biografia: localStorage.getItem('biografia') || '',
+            senha: localStorage.getItem('senha') || '',
+            email: localStorage.getItem('email') || '',
+            login: localStorage.getItem('login') || '',
+        };
+        setFormData((prevData) => ({ ...prevData, ...storedData }));
     }, []);
 
-    const handleNomeCompletoChange = (event) => {
-        setNomeCompleto(event.target.value);
+    const handleItemClick = (item) => {
+        setConteudoSelecionado(item);
     };
 
-    const handleIdadeChange = (event) => {
-        setIdade(event.target.value);
+    const handleInputChange = (event) => {
+        const { name, value } = event.target;
+        setFormData((prevData) => ({ ...prevData, [name]: value }));
     };
 
-    const handleSexoChange = (event) => {
-        setSexo(event.target.value);
+    const handleIdadeChange = (date) => {
+        setFormData((prevData) => ({ ...prevData, idade: date }));
     };
 
-    const handleInteressesChange = (event) => {
-        setInteresses(event.target.value);
+    const openChangePasswordPopup = () => {
+        setShowChangePasswordPopup(true);
     };
 
-    const handleProfissaoChange = (event) => {
-        setProfissao(event.target.value);
+    const closeChangePasswordPopup = () => {
+        setShowChangePasswordPopup(false);
     };
 
-    const handleBiografiaChange = (event) => {
-        setBiografia(event.target.value);
-    };
-
-    const handleSalvar = (e) => {
+    const handleSalvarPessoa = (e) => {
         e.preventDefault();
 
-        axios.post('http://localhost:8080/pessoa', {
-        }).then(response => {
-            navigate('/TelaInicial');
-        }).catch(error => {
-            toast.error(error.response.data);
-        });
+        const idPessoa = Number(localStorage.getItem('idPessoa'));
+
+        // Verifica se os campos obrigatórios não estão vazios
+        if (!formData.nomeCompleto || !formData.idade || !formData.sexo) {
+            toast.error("Por favor, preencha todos os campos obrigatórios.");
+            return;
+        }
+
+        // Cria um objeto com os dados a serem enviados
+        const pessoaData = {
+            idPessoa,
+            nomeCompleto: formData.nomeCompleto,
+            idade: formData.idade,
+            sexo: formData.sexo,
+            interesses: formData.interesses || null, // Campo opcional
+            profissao: formData.profissao || null, // Campo opcional
+            biografia: formData.biografia || null, // Campo opcional
+        };
+
+        axios.put('http://localhost:8080/pessoa', pessoaData)
+            .then((response) => {
+                // Atualize as informações da sessão do usuário após a atualização bem-sucedida
+                const userData = {
+                    nomeCompleto: formData.nomeCompleto,
+                    interesses: formData.interesses || null,
+                    profissao: formData.profissao || null,
+                    biografia: formData.biografia || null,
+                };
+
+                localStorage.setItem('nomeCompleto', userData.nomeCompleto);
+                localStorage.setItem('interesses', userData.interesses);
+                localStorage.setItem('profissao', userData.profissao);
+                localStorage.setItem('biografia', userData.biografia);
+
+                toast.success("Alterações realizadas com sucesso!");
+            })
+            .catch((error) => {
+                toast.error(error.response.data);
+            });
     };
 
-    const Container1 = () => (
-        <div className="login-content">
-            <h1 className="login-heading">Pessoa</h1>
-            <form onSubmit={handleSalvar} className="login-form">
-                <div className="form-group">
-                    <label htmlFor="nomeCompleto" className="form-label">Nome completo:</label>
-                    <input
-                        type="text"
-                        id="nomeCompleto"
-                        className="form-input"
-                        value={nomeCompleto}
-                        onChange={handleNomeCompletoChange}
-                    />
-                </div>
+    const handleSalvarCadastro = (e) => {
+        e.preventDefault();
 
-                <div className="form-group">
-                    <label htmlFor="idade" className="form-label">Idade:</label>
-                    <input
-                        type="number"
-                        id="idade"
-                        className="form-input"
-                        value={idade}
-                        onChange={handleIdadeChange}
-                    />
-                </div>
+        const idCadastro = Number(localStorage.getItem('idCadastro'));
 
-                <div className="form-group">
-                    <label className="form-label">Sexo:</label>
-                    <div className="radio-group">
-                        <label htmlFor="masculino" className="radio-label">
-                            <input
-                                type="radio"
-                                id="masculino"
-                                className="radio-input"
-                                value="masculino"
-                                checked={sexo === 'masculino'}
-                                onChange={handleSexoChange}
-                            />
-                            Masculino
-                        </label>
-                        <label htmlFor="feminino" className="radio-label">
-                            <input
-                                type="radio"
-                                id="feminino"
-                                className="radio-input"
-                                value="feminino"
-                                checked={sexo === 'feminino'}
-                                onChange={handleSexoChange}
-                            />
-                            Feminino
-                        </label>
-                    </div>
-                </div>
+        // Verifica se o email e login não estão vazios antes de enviar a atualização
+        if (!formData.email || !formData.login) {
+            toast.error("Por favor, preencha todos os campos.");
+            return;
+        }
 
-                <div className="form-group">
-                    <label htmlFor="interesses" className="form-label">Interesses:</label>
-                    <input
-                        type="text"
-                        id="interesses"
-                        className="form-input"
-                        value={interesses}
-                        onChange={handleInteressesChange}
-                    />
-                </div>
+        const cadastroData = {
+            idCadastro,
+            email: formData.email,
+            login: formData.login,
+        };
 
-                <div className="form-group">
-                    <label htmlFor="profissao" className="form-label">Profissão:</label>
-                    <input
-                        type="text"
-                        id="profissao"
-                        className="form-input"
-                        value={profissao}
-                        onChange={handleProfissaoChange}
-                    />
-                </div>
+        axios.put('http://localhost:8080/cadastro', cadastroData)
+            .then((response) => {
+                // Atualize as informações da sessão do usuário após a atualização bem-sucedida
+                localStorage.setItem('email', formData.email);
+                localStorage.setItem('login', formData.login);
 
-                <div className="form-group">
-                    <label htmlFor="biografia" className="form-label">Biografia:</label>
-                    <textarea
-                        id="biografia"
-                        className="form-input"
-                        value={biografia}
-                        onChange={handleBiografiaChange}
-                    ></textarea>
-                </div>
-                <button type="submit" className="login-button">Salvar</button>
-            </form>
-        </div>
-    );
+                toast.success("Configurações de conta atualizadas com sucesso!");
+            })
+            .catch((error) => {
+                toast.error(error.response.data);
+            });
+    };
 
-    const Container2 = () => (
-        <div>
-            {/* Container para a aba Interesses */}
-        </div>
-    );
+
+    const changePasswordOnClick = () => {
+        if (newPassword !== confirmNewPassword) {
+            toast.error("As senhas não coincidem.");
+            return;
+        }
+
+        const idCadastro = Number(localStorage.getItem('idCadastro'));
+
+        const cadastro = {
+            idCadastro,
+            senha: newPassword
+        };
+
+        axios.put('http://localhost:8080/cadastro-atualizar-senha', cadastro) // Substitua 'alterar-senha' pelo endpoint correto
+            .then((response) => {
+                toast.success("Senha alterada com sucesso!");
+                setNewPassword('');
+                setConfirmNewPassword('');
+                closeChangePasswordPopup();
+            })
+            .catch((error) => {
+                toast.error(error.response.data);
+            });
+    };
 
     return (
-        <div className="dados-container" style={{ overflow: 'hidden', overflowY: 'auto' }}>
+        <div className="conteudo-centralizado">
             <TopMenu />
             <h1></h1>
-            <div className="espaco-publicacoes"></div>
 
-            <div className="login-content">
-                <TopMenu />
-                <div>
-                    <div className="tab-buttons">
-                        <button
-                            className={`tab-button ${activeTab === 0 ? 'active' : ''}`}
-                            onClick={() => setActiveTab(0)}
+            <div className="container-centralizador">
+                <div className="lateral">
+                    <div className="item-titulo">Configurações</div>
+                    <div className="item">
+                        <a
+                            href="#"
+                            className={`link ${conteudoSelecionado === 'perfil' ? 'ativo' : ''}`}
+                            onClick={() => handleItemClick('perfil')}
                         >
-                            Dados
-                        </button>
-                        <button
-                            className={`tab-button ${activeTab === 1 ? 'active' : ''}`}
-                            onClick={() => setActiveTab(1)}
-                        >
-                            Interesses
-                        </button>
+                            Perfil
+                        </a>
                     </div>
-
-                    <div className="tab-buttons">
-                        {activeTab === 0 && <Container1 />}
-                        {activeTab === 1 && <Container2 />}
+                    <div className="item">
+                        <a
+                            href="#"
+                            className={`link ${conteudoSelecionado === 'configuracoes' ? 'ativo' : ''}`}
+                            onClick={() => handleItemClick('configuracoes')}
+                        >
+                            Configurações
+                        </a>
+                    </div>
+                    <div className="item">
+                        <a
+                            href="#"
+                            className={`link ${conteudoSelecionado === 'privacidade' ? 'ativo' : ''}`}
+                            onClick={() => handleItemClick('privacidade')}
+                        >
+                            Privacidade
+                        </a>
                     </div>
                 </div>
-                <ToastContainer />
+
+                <div className="conteudo">
+                    {conteudoSelecionado === 'perfil' && (
+                        <form onSubmit={handleSalvarPessoa}>
+                            <div className="dados-pessoa-form">
+                                <h2>Informações da Pessoa</h2>
+                                <div className="form-group">
+                                    <label htmlFor="nomeCompleto">Nome Completo</label>
+                                    <input
+                                        type="text"
+                                        id="nomeCompleto"
+                                        name="nomeCompleto"
+                                        value={formData.nomeCompleto}
+                                        onChange={handleInputChange}
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Sexo</label>
+                                    <div className="radio-group">
+                                        <label>
+                                            <input
+                                                type="radio"
+                                                name="sexo"
+                                                value="masculino"
+                                                checked={formData.sexo === 'masculino'}
+                                                onChange={handleInputChange}
+                                            />
+                                            Masculino
+                                        </label>
+                                        <label>
+                                            <input
+                                                type="radio"
+                                                name="sexo"
+                                                value="feminino"
+                                                checked={formData.sexo === 'feminino'}
+                                                onChange={handleInputChange}
+                                            />
+                                            Feminino
+                                        </label>
+                                    </div>
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="idade" className="label-data-nascimento">Data de nascimento</label>
+                                    <DatePicker
+                                        selected={formData.idade}
+                                        onChange={handleIdadeChange}
+                                        dateFormat="dd/MM/yyyy"
+                                        showYearDropdown
+                                        scrollableYearDropdown
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="profissao">Profissão/Ocupação</label>
+                                    <input
+                                        type="text"
+                                        id="profissao"
+                                        name="profissao"
+                                        value={formData.profissao}
+                                        onChange={handleInputChange}
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="biografia">Biografia</label>
+                                    <textarea
+                                        id="biografia"
+                                        name="biografia"
+                                        rows="4"
+                                        value={formData.biografia}
+                                        onChange={handleInputChange}
+                                    ></textarea>
+                                </div>
+
+                                <button type="submit">Salvar</button>
+                            </div>
+                        </form>
+                    )}
+
+                    {conteudoSelecionado === 'configuracoes' && (
+                        <div id="conteudo-configuracoes">
+                            <div className="dados-pessoa-form">
+                                <h2>Configurações de conta</h2>
+
+                                <div className="form-group">
+                                    <label htmlFor="email">E-mail</label>
+                                    <input
+                                        type="text"
+                                        id="email"
+                                        name="email"
+                                        value={formData.email}
+                                        onChange={handleInputChange}
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label htmlFor="login">Login</label>
+                                    <input
+                                        type="text"
+                                        id="login"
+                                        name="login"
+                                        value={formData.login}
+                                        onChange={handleInputChange}
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Senha</label>
+                                    <div>
+                                        <a href="#" onClick={openChangePasswordPopup}>Alterar senha</a>
+                                    </div>
+                                </div>
+
+                                <button type="submit" onClick={handleSalvarCadastro}>
+                                    Salvar Configurações
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Popup de alteração de senha */}
+                    {showChangePasswordPopup && (
+                        <div className="popup-overlay">
+                            <div className="popup-container">
+                                <div className="popup">
+                                    <button className="popup-close-button" onClick={closeChangePasswordPopup}>
+                                        X
+                                    </button>
+                                    <h3>Alterar Senha</h3>
+                                    <div className="form-group">
+                                        <label htmlFor="newPassword">Nova Senha</label>
+                                        <div></div>
+                                        <input
+                                            type="password"
+                                            id="newPassword"
+                                            value={newPassword}
+                                            onChange={(e) => setNewPassword(e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="confirmNewPassword">Confirmar Nova Senha</label>
+                                        <div></div>
+                                        <input
+                                            type="password"
+                                            id="confirmNewPassword"
+                                            value={confirmNewPassword}
+                                            onChange={(e) => setConfirmNewPassword(e.target.value)}
+                                        />
+                                    </div>
+                                    <button type="button" onClick={changePasswordOnClick}>
+                                        Salvar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+
+                </div>
             </div>
+            <ToastContainer />
         </div>
     );
 };

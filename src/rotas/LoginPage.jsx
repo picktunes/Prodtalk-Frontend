@@ -44,6 +44,8 @@ const LoginPage = () => {
                 localStorage.setItem('idCadastro', response.data.data.idCadastro);
                 localStorage.setItem('usuario', response.data.data.usuario);
                 localStorage.setItem('senha', response.data.data.senha);
+                localStorage.setItem('email', response.data.data.email);
+                localStorage.setItem('login', response.data.data.login);
 
                 axios.get('http://localhost:8080/pessoa', {
                     params: {
@@ -72,6 +74,7 @@ const LoginPage = () => {
                 });
 
             } else if (response.data.data.statusCadastro == 1) {
+
                 navigate('/TelaDadosPessoa');
             } else {
                 toast.error("Não foi possível logar no sistema. Verifique usuário e senha.");

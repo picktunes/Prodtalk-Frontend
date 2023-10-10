@@ -478,8 +478,6 @@ const MuralDePublicacoes = () => {
                             {expandedComments[publicacao.idPublicacao] && (
                                 <div className="comentarios-info">
 
-
-
                                     {/* Comentário DIRETO NA PUBLICAÇÃO */}
                                     <div className="comment-input-container">
                                         <input
@@ -554,7 +552,6 @@ const MuralDePublicacoes = () => {
                         {/* Curtidas e Botões de Ação */}
                         <div className="publicacao-info">
                             <div className="botoes-container">
-
                                 <button
                                     onClick={() => adicionarCurtida(publicacao.idPublicacao)}
                                     style={{ backgroundColor: 'transparent', border: 'none', padding: 0, position: 'relative' }}
@@ -568,8 +565,6 @@ const MuralDePublicacoes = () => {
                                 </button>
                                 <span className="separator">•</span>
                                 <span>{publicacao.publicacaoCurtidas.length} curtidas</span>
-
-                                <h12></h12>
 
                                 <button
                                     onClick={() => mostrarComentarios(publicacao.idPublicacao)}
@@ -598,6 +593,9 @@ const MuralDePublicacoes = () => {
                     <div className="popup-overlay">
                         <div className="popup-container">
                             <div className="popup">
+                                <button className="popup-close-button" onClick={fecharPopup}>
+                                    X
+                                </button>
                                 <h3>Adicionar Publicação</h3>
                                 <form onSubmit={handleSubmit}>
                                     <div className="form-group">
@@ -623,9 +621,6 @@ const MuralDePublicacoes = () => {
                                     <div className="form-group button-group">
                                         <button type="submit" className="confirmar-button">
                                             Confirmar
-                                        </button>
-                                        <button type="button" className="cancelar-button" onClick={fecharPopup}>
-                                            Cancelar
                                         </button>
                                     </div>
                                 </form>
