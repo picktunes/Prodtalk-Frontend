@@ -21,7 +21,16 @@ const MuralDePublicacoes = () => {
     const [comentarios, setComentarios] = useState({});
     const [expandedComments, setExpandedComments] = useState({});
     const [mostrarFormularioComentario, setMostrarFormularioComentario] = useState(false);
-    const [comentarioAberto, setComentarioAberto] = useState(null);
+    const textoDeBuscaRef = useRef('');
+
+    const handleSearchSubmit = (searchText) => {
+        if (searchText !== textoDeBuscaRef.current) {
+            setPublicacoes([]);
+            paginaRef.current = 1;
+            textoDeBuscaRef.current = searchText;
+            carregarMaisPublicacoes();
+        }
+    };
 
     useEffect(() => {
         console.log("Componente montado / Atualizado!");
@@ -40,8 +49,8 @@ const MuralDePublicacoes = () => {
         };
     }, []);
 
-    const carregarMaisPublicacoes = () => {
-        fetchPublicacoes();
+    const carregarMaisPublicacoes = async () => {
+        await fetchPublicacoes();
     };
 
     const fetchPublicacoes = async () => {
@@ -51,8 +60,15 @@ const MuralDePublicacoes = () => {
 
         try {
             carregandoRef.current = true;
+            let response;
 
-            const response = await axios.get(`http://localhost:8080/publicacoes?page=${paginaRef.current}`);
+            if (textoDeBuscaRef.current) {
+                // Se textoDeBusca não estiver vazio, faça a solicitação com a busca
+                response = await axios.get(`http://localhost:8080/publicacoes/buscar-publicacoes?page=${paginaRef.current}&texto=${textoDeBuscaRef.current}`);
+            } else {
+                // Caso contrário, faça a solicitação padrão
+                response = await axios.get(`http://localhost:8080/publicacoes?page=${paginaRef.current}`);
+            }
 
             if (response.status === 200) {
                 const novasPublicacoes = response.data;
@@ -182,7 +198,9 @@ const MuralDePublicacoes = () => {
             }
 
             fecharPopup();
-            fetchPublicacoes();
+            setPublicacoes([]);
+            paginaRef.current = 1;
+            await carregarMaisPublicacoes();
         } catch (error) {
             console.error("Erro ao enviar os dados:", error);
         }
@@ -415,7 +433,7 @@ const MuralDePublicacoes = () => {
 
     return (
         <div className="mural-container" style={{ overflow: 'hidden', overflowY: 'auto' }}>
-            <TopMenu />
+            <TopMenu onSearchSubmit={handleSearchSubmit} searchText={textoDeBuscaRef.current} />
             <h1></h1>
             <div className="input-container" onClick={abrirPopup}>
                 <div className="input-content">
@@ -584,7 +602,7 @@ const MuralDePublicacoes = () => {
                         </div>
                     </div>
                 ))}
-                {<h4>Carregando...</h4>}
+                {carregandoRef.current ? <h4>Carregando...</h4> : null}
                 <li id="sentinela"></li>
             </div>
 
