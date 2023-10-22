@@ -6,8 +6,12 @@ import likedImage from '../assets/liked.png';
 import comentarioImage from '../assets/comentario.png';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import TelaCategoria from './TelaCategoria';
+import { useNavigate } from 'react-router-dom';
+import ellipsis from '../assets/ellipsis.png';
 
 const MuralDePublicacoes = () => {
+    const navigate = useNavigate();
     const [publicacoes, setPublicacoes] = useState([]);
     const [exibirPopup, setExibirPopup] = useState(false);
     const [comentario, setComentario] = useState('');
@@ -22,6 +26,10 @@ const MuralDePublicacoes = () => {
     const [expandedComments, setExpandedComments] = useState({});
     const [mostrarFormularioComentario, setMostrarFormularioComentario] = useState(false);
     const textoDeBuscaRef = useRef('');
+    const categoriasRef = useRef([]);
+    const [searchText, setSearchText] = useState('');
+    const [suggestedCategories, setSuggestedCategories] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState(null);
 
     const handleSearchSubmit = (searchText) => {
         if (searchText !== textoDeBuscaRef.current) {
@@ -33,6 +41,9 @@ const MuralDePublicacoes = () => {
     };
 
     useEffect(() => {
+        if (categoriasRef.current.length === 0) {
+            fetchAndSetCategorias();
+        }
         console.log("Componente montado / Atualizado!");
         const intersectionObserver = new IntersectionObserver(
             (entries) => {
@@ -63,10 +74,8 @@ const MuralDePublicacoes = () => {
             let response;
 
             if (textoDeBuscaRef.current) {
-                // Se textoDeBusca não estiver vazio, faça a solicitação com a busca
                 response = await axios.get(`http://localhost:8080/publicacoes/buscar-publicacoes?page=${paginaRef.current}&texto=${textoDeBuscaRef.current}`);
             } else {
-                // Caso contrário, faça a solicitação padrão
                 response = await axios.get(`http://localhost:8080/publicacoes?page=${paginaRef.current}`);
             }
 
@@ -81,6 +90,22 @@ const MuralDePublicacoes = () => {
             console.error('Erro ao buscar as publicações:', error);
         } finally {
             carregandoRef.current = false;
+        }
+    };
+
+    const fetchAndSetCategorias = async () => {
+        try {
+
+            let response = await axios.get(`http://localhost:8080/categoria/categorias`);
+            if (response.status === 200) {
+                const categoriasRecebidas = response.data.data;
+                categoriasRef.current = categoriasRecebidas;
+                console.log("Categorias carregadas com sucesso!");
+            } else {
+                console.error('Erro ao buscar as categorias: Status da resposta:', response.status);
+            }
+        } catch (error) {
+            console.error('Erro ao buscar as categorias:', error);
         }
     };
 
@@ -179,6 +204,8 @@ const MuralDePublicacoes = () => {
             });
         }
 
+        const categoria = selectedCategory;
+
         try {
             await axios.post('http://localhost:8080/publicacoes', {
                 idPublicacao: null,
@@ -188,7 +215,8 @@ const MuralDePublicacoes = () => {
                 conteudo: conteudoValue,
                 titulo: tituloValue,
                 quantidadeLikes: 0,
-                img: base64
+                img: base64,
+                categoria
             });
 
             console.log("Dados enviados com sucesso!");
@@ -431,6 +459,29 @@ const MuralDePublicacoes = () => {
         setComentario(event.target.value);
     }
 
+    const handleCategoryChange = (event) => {
+        const searchText = event.target.value;
+        setSearchText(searchText);
+        const sugeridos = categoriasRef.current.filter(categoria => {
+            const nomeCategoria = categoria.dsNome;
+            return nomeCategoria && nomeCategoria.toLowerCase().includes(searchText.toLowerCase());
+        });
+
+        setSuggestedCategories(sugeridos);
+    };
+
+    const selectCategory = (categoria) => {
+        setSelectedCategory(categoria);
+        setSearchText(categoria.dsNome);
+        setSuggestedCategories([]);
+    };
+
+    const handleCategoriaClick = (categoria) => {
+        if (categoria && categoria.idCategoria) {
+            navigate(`/TelaCategoria/${categoria.idCategoria}`);
+        }
+    };
+
     return (
         <div className="mural-container" style={{ overflow: 'hidden', overflowY: 'auto' }}>
             <TopMenu onSearchSubmit={handleSearchSubmit} searchText={textoDeBuscaRef.current} />
@@ -449,7 +500,12 @@ const MuralDePublicacoes = () => {
                         {/* Conteúdo da Publicação */}
                         <div className="publicacao-conteudo">
                             <div className="publicacao-options-button" onClick={() => abrirMenuOpcoes(publicacao.idPublicacao)}>
-                                <span>...</span>
+                                <div className="image-background"></div>
+                                <img
+                                    src={ellipsis}
+                                    alt="Curtir"
+                                    className="like-image"
+                                />
                                 {expandedOption === publicacao.idPublicacao && (
                                     <div className="menu-opcoes">
                                         <div onClick={() => console.log('Opção 1')}>Salvar publicação</div>
@@ -459,7 +515,15 @@ const MuralDePublicacoes = () => {
                             </div>
                             <div className="publicacao-header">
                                 <div className="publicacao-autor">{publicacao.pessoa.nomeCompleto}</div>
-                                <h2 className="publicacao-titulo">{publicacao.titulo}</h2>
+                                <div className="publicacao-info-container">
+                                    <h2 className="publicacao-titulo">{publicacao.titulo}</h2>
+                                    <span className="separator"></span>
+                                    {publicacao.categoria && (
+                                        <div className="publicacao-categoria" onClick={() => handleCategoriaClick(publicacao.categoria)} style={{ cursor: 'pointer' }}>
+                                            <div className="categoria-tag">{publicacao.categoria.dsNome}</div>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                             <div className="texto">
                                 {publicacao.conteudo && (
@@ -631,6 +695,26 @@ const MuralDePublicacoes = () => {
                                         <label>
                                             <input type="radio" name="tipo" value="feedback" /> Feedback
                                         </label>
+                                    </div>
+                                    <div>
+                                        <div className="form-group">
+                                            <label htmlFor="categoria">Categoria</label>
+                                            <input
+                                                type="text"
+                                                id="categoria"
+                                                value={searchText}
+                                                onChange={handleCategoryChange}
+                                            />
+                                            {suggestedCategories.length > 0 && (
+                                                <ul className="suggestions">
+                                                    {suggestedCategories.map((category) => (
+                                                        <li key={category.idCategoria} onClick={() => selectCategory(category)}>
+                                                            {category.dsNome}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </div>
                                     </div>
                                     <div className="form-group">
                                         <label htmlFor="imagem">Imagem(pgn ou jpg): </label>

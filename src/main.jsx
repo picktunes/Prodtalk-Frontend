@@ -8,6 +8,8 @@ import LoginPage from "./rotas/LoginPage";
 import TelaCadastro from "./rotas/TelaCadastro";
 import TelaDadosPessoa from "./rotas/TelaDadosPessoa";
 import TelaInicial from "./rotas/TelaInicial";
+import TelaCategorias from "./rotas/TelaCategorias";
+import TelaCategoria from "./rotas/TelaCategoria";
 import TopMenu from "./rotas/TopMenu";
 
 const router = createBrowserRouter([
@@ -31,6 +33,14 @@ const router = createBrowserRouter([
   {
     path: "telaDadosPessoa",
     element: <TelaDadosPessoa />
+  },
+  {
+    path: "TelaCategorias",
+    element: <TelaCategorias />
+  },
+  {
+    path: "TelaCategoria/:idCategoria",
+    element: <TelaCategoria />
   },
   {
     path: "TopMenu",
