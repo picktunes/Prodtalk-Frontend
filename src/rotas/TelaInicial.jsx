@@ -6,7 +6,6 @@ import likedImage from '../assets/liked.png';
 import comentarioImage from '../assets/comentario.png';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import TelaCategoria from './TelaCategoria';
 import { useNavigate } from 'react-router-dom';
 import ellipsis from '../assets/ellipsis.png';
 
@@ -44,20 +43,20 @@ const MuralDePublicacoes = () => {
         if (categoriasRef.current.length === 0) {
             fetchAndSetCategorias();
         }
-        console.log("Componente montado / Atualizado!");
-        const intersectionObserver = new IntersectionObserver(
-            (entries) => {
-                if (entries.some((entry) => entry.isIntersecting)) {
-                    console.log('Sentinela appears!');
-                    carregarMaisPublicacoes();
-                }
-            }
-        );
 
-        intersectionObserver.observe(document.getElementById('sentinela'));
-        return () => {
-            intersectionObserver.disconnect();
-        };
+        console.log("Componente montado / Atualizado!");
+
+        const intersectionObserver = new IntersectionObserver((entries) => {
+            if (entries.some((entry) => entry.isIntersecting)) {
+                console.log('Sentinela appears!');
+                carregarMaisPublicacoes();
+            }
+        });
+
+        const sentinela = document.getElementById('sentinela');
+        if (sentinela) {
+            intersectionObserver.observe(sentinela);
+        }
     }, []);
 
     const carregarMaisPublicacoes = async () => {
@@ -486,13 +485,16 @@ const MuralDePublicacoes = () => {
         <div className="mural-container" style={{ overflow: 'hidden', overflowY: 'auto' }}>
             <TopMenu onSearchSubmit={handleSearchSubmit} searchText={textoDeBuscaRef.current} />
             <h1></h1>
-            <div className="input-container" onClick={abrirPopup}>
-                <div className="input-content">
-                    <div className="texto-opaco">O que você gostaria de perguntar ou compartilhar?</div>
+            {publicacoes.length > 0 && (
+                <div className="input-container" onClick={abrirPopup}>
+                    <div className="input-content">
+                        <div className="texto-opaco">O que você gostaria de perguntar ou compartilhar?</div>
+                    </div>
                 </div>
-            </div>
+            )}
 
             <div className="espaco-publicacoes"></div>
+
             <div className="publicacoes-container" ref={publicacoesContainerRef}>
                 {publicacoes.map((publicacao, index) => (
                     <div key={`${publicacao.idPublicacao}-${index}`} className="publicacao">
@@ -514,7 +516,13 @@ const MuralDePublicacoes = () => {
                                 )}
                             </div>
                             <div className="publicacao-header">
-                                <div className="publicacao-autor">{publicacao.pessoa.nomeCompleto}</div>
+                                <div className="conteiner-inline">
+                                    <img
+                                        src={`data:image/jpeg;base64, ${publicacao.pessoa.fotoPerfil}`}
+                                        className="foto-perfil"
+                                    />
+                                    <div className="publicacao-autor">{publicacao.pessoa.nomeCompleto}</div>
+                                </div>
                                 <div className="publicacao-info-container">
                                     <h2 className="publicacao-titulo">{publicacao.titulo}</h2>
                                     <span className="separator"></span>
@@ -666,8 +674,12 @@ const MuralDePublicacoes = () => {
                         </div>
                     </div>
                 ))}
-                {carregandoRef.current ? <h4>Carregando...</h4> : null}
-                <li id="sentinela"></li>
+                <div>
+                    {carregandoRef && (
+                        <div className="loading-text">...</div>
+                    )}
+                </div>
+                <div id="sentinela"></div>
             </div>
 
             {

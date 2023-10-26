@@ -1,6 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
+import search from '../assets/search.png';
+
 
 const TopMenu = ({ onSearchSubmit }) => {
     const navigate = useNavigate();

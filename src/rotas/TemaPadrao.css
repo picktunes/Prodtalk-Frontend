@@ -135,10 +135,6 @@
     flex-direction: column;
 }
 
-.mural-container-cor-claro {}
-
-.mural-container-cor-escuro {}
-
 .publicacao-options-button {
     position: absolute;
     top: 10px;
@@ -180,9 +176,19 @@
     flex-direction: column;
     align-items: center;
     width: 100vw;
-    height: 100vh;
     padding: 1rem;
     overflow-x: auto;
+}
+
+.publicacoes-categoria-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    overflow-x: auto;
+    border: 1px solid #1923ad;
+    margin-top: 17px;
 }
 
 .texto {
@@ -349,7 +355,7 @@ button[type='submit']:hover {
 #sentinela {
     width: 100%;
     height: 100px;
-    background-color: rgba(233, 17, 17, 0.5);
+    background-color: rgba(235, 69, 69, 0.5);
 }
 
 .popup-open {
@@ -557,24 +563,14 @@ button[type='submit']:hover {
     height: auto;
 }
 
-.botoes-container {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.botoes-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 0;
-}
 
 .botoes-container {
     display: flex;
     justify-content: flex-end;
     align-items: center;
     margin: 0;
+    max-width: 100%;
+    max-height: 100%;
 }
 
 .botoes-container button {
@@ -770,12 +766,26 @@ button[type='submit']:hover {
 .conteudo-categorias {
     margin-top: 80px;
     top: 200px;
-    width: 800px;
-    box-shadow: 0px 0px 5px rgba(18, 214, 77, 0.5);
+    width: 570px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
     grid-auto-rows: minmax(0, 1fr);
+    margin-left: 30px;
+    height: calc(100vh - 200px);
+    overflow-y: auto;
+    scrollbar-width: thin;
 }
 
-
+.conteudo-descobrir-categorias {
+    margin-top: 80px;
+    top: 200px;
+    width: 900px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
+    grid-auto-rows: minmax(0, 1fr);
+    margin-left: 30px;
+    height: calc(100vh - 200px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
 
 .ver-mais-button {
     box-sizing: border-box;
@@ -785,17 +795,6 @@ button[type='submit']:hover {
     display: flex;
     justify-content: center;
     margin-top: 20px;
-}
-
-.conteudo-descobrir-categorias {
-    margin-top: 80px;
-    width: 850px;
-    height: 750px;
-    box-shadow: 0px 0px 5px rgba(11, 8, 212, 0.5);
-    grid-auto-rows: minmax(0, 1fr);
-    overflow-y: auto;
-    padding: 1rem;
-    scrollbar-width: thin;
 }
 
 .novas-categorias-container {
@@ -864,7 +863,6 @@ button[type='submit']:hover {
 
 .imagem-capa {
     position: relative;
-    color: rgb(6, 170, 47);
 }
 
 .imagem-quadrada {
@@ -879,18 +877,19 @@ button[type='submit']:hover {
     width: 60px;
     height: 60px;
     object-fit: cover;
+    border-radius: 10%;
 }
 
 .imagem-120px-container {
     display: flex;
     justify-content: center;
-    box-shadow: 0px 0px 5px rgba(143, 112, 12, 0.5);
 }
 
 .imagem-120px {
     width: 120px;
     height: 120px;
     object-fit: cover;
+    border-radius: 10%;
 }
 
 .imagem-120px-container {
@@ -916,11 +915,11 @@ button[type='submit']:hover {
     width: 30px;
     height: 30px;
     object-fit: cover;
+    border-radius: 10%;
 }
 
 .categoria-info {
     padding: 1px;
-    box-shadow: 0px 0px 5px rgba(143, 112, 12, 0.5);
     display: flex;
     flex-direction: column;
 }
@@ -969,12 +968,7 @@ button[type='submit']:hover {
     overflow: hidden;
 }
 
-.conteudo-categorias {
-    width: 570px;
-    margin-left: 30px;
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
-    height: calc(100vh - 200px);
-}
+
 
 .overlay {
     position: absolute;
@@ -1013,7 +1007,7 @@ button[type='submit']:hover {
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: 100%;
+    height: 10%;
     box-shadow: 0px 0px 5px rgba(196, 5, 5, 0.5);
     overflow: hidden;
 }
@@ -1032,8 +1026,10 @@ button[type='submit']:hover {
 .conteudo-capa {
     align-items: center;
     width: 1200px;
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
-    height: calc(100vh - 100px);
+    height: 400px;
+    box-shadow: 0px 0px 5px rgba(107, 6, 77, 0.5);
+    padding-bottom: 20px;
+    /* Adicione espaçamento vertical */
 }
 
 .imagem-capa-categoria {
@@ -1066,13 +1062,13 @@ button[type='submit']:hover {
     border-radius: 30px;
     background-color: #007BFF;
     color: #fff;
-    padding: 10px 20px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
     font-size: 16px;
     cursor: pointer;
     transform: scale(1.05);
+
 }
 
 
@@ -1088,4 +1084,33 @@ button[type='submit']:hover {
 
 .publicacao-titulo {
     font-size: 1.2rem;
+}
+
+.foto-perfil {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.conteiner-inline {
+    display: flex;
+    align-items: center;
+}
+
+.loading-text {
+    font-size: 50px;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
 }

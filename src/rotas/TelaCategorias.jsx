@@ -6,9 +6,7 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import TopMenu from './TopMenu';
-import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { format } from 'date-fns';
 
 const TelaCategorias = () => {
     const navigate = useNavigate();
@@ -118,6 +116,11 @@ const TelaCategorias = () => {
 
     const criarCategoria = async (e) => {
         e.preventDefault();
+
+        if (!nome || !descricao) {
+            toast.error('Nome e Descrição são obrigatórios.');
+            return;
+        }
 
         if (nome.length <= 40 && descricao.length <= 80) {
             let imagemBase64 = null;

@@ -7,7 +7,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import TopMenu from './TopMenu';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { format } from 'date-fns';
 
 const TelaDadosPessoa = () => {
     const [conteudoSelecionado, setConteudoSelecionado] = useState('perfil');
@@ -15,20 +14,19 @@ const TelaDadosPessoa = () => {
         nomeCompleto: '',
         idade: null,
         sexo: 'masculino', // Valor padrão
-        interesses: '',
         profissao: '',
         biografia: '',
     });
     const [showChangePasswordPopup, setShowChangePasswordPopup] = useState(false);
     const [newPassword, setNewPassword] = useState('');
     const [confirmNewPassword, setConfirmNewPassword] = useState('');
+    const [file, setFile] = useState(null);
 
     const navigate = useNavigate();
 
     useEffect(() => {
         const storedData = {
             nomeCompleto: localStorage.getItem('nomeCompleto') || '',
-            interesses: localStorage.getItem('interesses') || '',
             profissao: localStorage.getItem('profissao') || '',
             biografia: localStorage.getItem('biografia') || '',
             senha: localStorage.getItem('senha') || '',
@@ -59,48 +57,72 @@ const TelaDadosPessoa = () => {
         setShowChangePasswordPopup(false);
     };
 
-    const handleSalvarPessoa = (e) => {
+    const handleSalvarPessoa = async (e) => {
         e.preventDefault();
 
         const idPessoa = Number(localStorage.getItem('idPessoa'));
 
-        // Verifica se os campos obrigatórios não estão vazios
         if (!formData.nomeCompleto || !formData.idade || !formData.sexo) {
             toast.error("Por favor, preencha todos os campos obrigatórios.");
             return;
         }
 
-        // Cria um objeto com os dados a serem enviados
+        // Calcula a idade a partir da data de nascimento
+        const dataNascimento = formData.idade;
+        const dataAtual = new Date();
+        const diff = dataAtual.getFullYear() - dataNascimento.getFullYear();
+
+        let pessoaIdade = 0;
+
+        // Verifica se o aniversário ainda não ocorreu neste ano
+        if (dataAtual.getMonth() < dataNascimento.getMonth() ||
+            (dataAtual.getMonth() === dataNascimento.getMonth() && dataAtual.getDate() < dataNascimento.getDate())) {
+            pessoaIdade = diff - 1; // Se ainda não fez aniversário neste ano, subtrai 1 da idade.
+        } else {
+            pessoaIdade = diff; // Caso contrário, mantém a idade calculada.
+        }
+
+        let base64 = null;
+        if (file) {
+            const reader = new FileReader();
+            base64 = await new Promise((resolve) => {
+                reader.onload = function () {
+                    base64 = reader.result.split(',')[1];
+                    resolve(base64);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
         const pessoaData = {
             idPessoa,
             nomeCompleto: formData.nomeCompleto,
-            idade: formData.idade,
+            idade: pessoaIdade, // Usando a idade calculada
             sexo: formData.sexo,
-            interesses: formData.interesses || null, // Campo opcional
-            profissao: formData.profissao || null, // Campo opcional
-            biografia: formData.biografia || null, // Campo opcional
+            profissao: formData.profissao || null,
+            fotoPerfil: base64,
+            biografia: formData.biografia || null
         };
 
-        axios.put('http://localhost:8080/pessoa', pessoaData)
-            .then((response) => {
-                // Atualize as informações da sessão do usuário após a atualização bem-sucedida
-                const userData = {
-                    nomeCompleto: formData.nomeCompleto,
-                    interesses: formData.interesses || null,
-                    profissao: formData.profissao || null,
-                    biografia: formData.biografia || null,
-                };
+        try {
+            await axios.put('http://localhost:8080/pessoa', pessoaData);
 
-                localStorage.setItem('nomeCompleto', userData.nomeCompleto);
-                localStorage.setItem('interesses', userData.interesses);
-                localStorage.setItem('profissao', userData.profissao);
-                localStorage.setItem('biografia', userData.biografia);
+            const userData = {
+                nomeCompleto: formData.nomeCompleto,
+                interesses: formData.interesses || null,
+                profissao: formData.profissao || null,
+                biografia: formData.biografia || null,
+            };
 
-                toast.success("Alterações realizadas com sucesso!");
-            })
-            .catch((error) => {
-                toast.error(error.response.data);
-            });
+            localStorage.setItem('nomeCompleto', userData.nomeCompleto);
+            localStorage.setItem('interesses', userData.interesses);
+            localStorage.setItem('profissao', userData.profissao);
+            localStorage.setItem('biografia', userData.biografia);
+
+            toast.success("Alterações realizadas com sucesso!");
+        } catch (error) {
+            toast.error(error.response.data);
+        }
     };
 
     const handleSalvarCadastro = (e) => {
@@ -159,6 +181,21 @@ const TelaDadosPessoa = () => {
             });
     };
 
+    const handleImageChange = (event) => {
+        const input = event.target;
+        const selectedFile = input.files[0];
+        if (selectedFile) {
+            const fileType = selectedFile.type;
+            const validImageTypes = ['image/jpeg', 'image/png'];
+            if (!validImageTypes.includes(fileType)) {
+                alert('Por favor, carregue um arquivo PNG ou JPG!');
+                input.value = '';
+                return;
+            }
+            setFile(selectedFile);
+        }
+    };
+
     return (
         <div className="conteudo-centralizado">
             <TopMenu />
@@ -201,6 +238,10 @@ const TelaDadosPessoa = () => {
                         <form onSubmit={handleSalvarPessoa}>
                             <div className="dados-pessoa-form">
                                 <h2>Informações da Pessoa</h2>
+                                <div className="form-group">
+                                    <label htmlFor="imagem">Foto de perfil(pgn ou jpg): </label>
+                                    <input type="file" id="imagem" accept="image/png, image/jpeg" onChange={handleImageChange} />
+                                </div>
                                 <div className="form-group">
                                     <label htmlFor="nomeCompleto">Nome Completo</label>
                                     <input
