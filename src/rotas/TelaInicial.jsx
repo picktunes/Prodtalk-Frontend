@@ -184,13 +184,6 @@ const MuralDePublicacoes = () => {
         const tituloValue = tituloElement ? tituloElement.value : "";
         const conteudoValue = conteudoElement ? conteudoElement.value : "";
 
-        const novaPublicacao = {
-            id: publicacoes.length + 1,
-            titulo: tituloValue,
-            conteudo: conteudoValue,
-            quantidadeLikes: 0
-        };
-
         let base64 = null;
         if (file) {
             const reader = new FileReader();
@@ -208,7 +201,7 @@ const MuralDePublicacoes = () => {
         try {
             await axios.post('http://localhost:8080/publicacoes', {
                 idPublicacao: null,
-                idPessoa: null,
+                idPessoa: Number(localStorage.getItem('idPessoa')),
                 dataCriacao: null,
                 dataAtualizacao: null,
                 conteudo: conteudoValue,
