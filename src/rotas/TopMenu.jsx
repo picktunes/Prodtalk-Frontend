@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, memo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Dropdown from 'react-dropdown-select';
@@ -21,7 +21,7 @@ const options = [
 
 Modal.setAppElement('#root');
 
-const TopMenu = ({ onSearchSubmit }) => {
+const TopMenu = memo(({ onSearchSubmit }) => {
     const navigate = useNavigate();
     const containerRef = useRef(null);
     const [selectedOption, setSelectedOption] = useState('');
@@ -41,18 +41,7 @@ const TopMenu = ({ onSearchSubmit }) => {
     const handleNotificacaoClick = async () => {
         setIsModalOpen(true);
 
-        try {
-            const idPessoa = Number(localStorage.getItem('idPessoa'));
-            const response = await axios.get(`http://localhost:8080/notificacao?idPessoa=${idPessoa}`);
 
-            const notificacoesData = response.data;
-            console.log('Notificações:', notificacoesData);
-
-            setNotificacoes(notificacoesData);
-
-        } catch (error) {
-            console.error('Erro ao buscar notificações:', error);
-        }
     };
 
     const closeModal = () => {
@@ -85,6 +74,21 @@ const TopMenu = ({ onSearchSubmit }) => {
             svgElement.style.width = `${iconSize}px`;
             svgElement.style.height = `${iconSize}px`;
         });
+
+        // Aqui buscamos as notificações quando a tela é carregada
+        (async () => {
+            try {
+                const idPessoa = Number(localStorage.getItem('idPessoa'));
+                const response = await axios.get(`http://localhost:8080/notificacao?idPessoa=${idPessoa}`);
+
+                const notificacoesData = response.data;
+                console.log('Notificações:', notificacoesData);
+
+                setNotificacoes(notificacoesData);
+            } catch (error) {
+                console.error('Erro ao buscar notificações:', error);
+            }
+        })();
     }, []);
 
     const handleOptionChange = event => {
@@ -95,6 +99,11 @@ const TopMenu = ({ onSearchSubmit }) => {
         } else {
             setSelectedOption(selectedValue);
         }
+    };
+
+    const handleNotificationClick = (idPublicacao) => {
+        // Aqui você pode adicionar a lógica para navegar para a tela de publicação com base no idPublicacao
+        navigate(`/TelaPublicacao/${idPublicacao}`);
     };
 
     return (
@@ -109,6 +118,9 @@ const TopMenu = ({ onSearchSubmit }) => {
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="black">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
                     </svg>
+                    {notificacoes.length > 0 && (
+                        <span className="notification-badge">{notificacoes.length}</span>
+                    )}
                 </div >
                 <Link to="/TelaCategorias" className="menu-button">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="black">
@@ -159,7 +171,7 @@ const TopMenu = ({ onSearchSubmit }) => {
             >
                 {notificacoes && notificacoes.length > 0 ? (
                     notificacoes.map((notificacao, index) => (
-                        <div key={index} className="notification-item">
+                        <div key={index} className="notification-item" onClick={() => handleNotificationClick(notificacao.publicacao.idPublicacao)}>
                             <p>
                                 <img src={`data: image / jpeg; base64, ${notificacao.publicacao.img} `} className="imagem-30px-middle" />
                                 {notificacao.nrNotificacoes === 1 ? 'Existe ' : 'Existem '}
@@ -190,6 +202,7 @@ const TopMenu = ({ onSearchSubmit }) => {
             </Modal>
         </div >
     );
-};
+
+});
 
 export default TopMenu;

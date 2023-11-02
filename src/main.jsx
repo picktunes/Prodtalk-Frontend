@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import './index.css'
 
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider, Route } from 'react-router-dom'
 
 import LoginPage from "./rotas/LoginPage";
 import TelaCadastro from "./rotas/TelaCadastro";
@@ -10,6 +10,7 @@ import TelaDadosPessoa from "./rotas/TelaDadosPessoa";
 import TelaInicial from "./rotas/TelaInicial";
 import TelaCategorias from "./rotas/TelaCategorias";
 import TelaCategoria from "./rotas/TelaCategoria";
+import TelaPublicacao from "./rotas/TelaPublicacao";
 import TopMenu from "./rotas/TopMenu";
 
 const router = createBrowserRouter([
@@ -23,12 +24,7 @@ const router = createBrowserRouter([
   },
   {
     path: "telaInicial",
-    element: (
-      <>
-        <TopMenu />
-        <TelaInicial />
-      </>
-    )
+    element: <TelaInicial />
   },
   {
     path: "telaDadosPessoa",
@@ -43,14 +39,16 @@ const router = createBrowserRouter([
     element: <TelaCategoria />
   },
   {
-    path: "TopMenu",
-    element: <TopMenu />
-  }
+    path: "TelaPublicacao/:idPublicacao",
+    element: <TelaPublicacao />
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <RouterProvider router={router}>
+      <TopMenu />
+      <Route path="*" element={<TopMenu />} />
+    </RouterProvider>
   </React.StrictMode>,
 )
-

@@ -1202,3 +1202,28 @@ button[type='submit']:hover {
     align-items: center;
     height: 50%;
 }
+
+.notification-bell {
+    position: relative;
+    display: inline-block;
+    width: 24px;
+    /* Tamanho do ícone do sino */
+}
+
+.notification-badge {
+    position: absolute;
+    top: 0;
+    left: 300;
+    background-color: red;
+    color: white;
+    width: 14px;
+    /* Tamanho da bola de notificação */
+    height: 14px;
+    /* Tamanho da bola de notificação */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    /* Tamanho da fonte da notificação */
+}

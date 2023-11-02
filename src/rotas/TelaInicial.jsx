@@ -534,7 +534,7 @@ const MuralDePublicacoes = () => {
                                         ) : (
                                             truncateText(publicacao.conteudo, 300)
                                         )}
-                                        {publicacao.conteudo.length > 600 && (
+                                        {publicacao.conteudo.length > 300 && (
                                             <a
                                                 href="#"
                                                 onClick={(e) => {
@@ -545,7 +545,7 @@ const MuralDePublicacoes = () => {
                                                 }}
                                                 className="ver-mais-button"
                                             >
-                                                {expandedContent[publicacao.idPublicacao] ? 'Ver menos' : 'Ver mais'}
+                                                {expandedContent[publicacao.idPublicacao] ? ' Ver menos' : ' Ver mais'}
                                             </a>
                                         )}
                                     </>
