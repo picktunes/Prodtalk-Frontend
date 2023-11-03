@@ -1207,7 +1207,6 @@ button[type='submit']:hover {
     position: relative;
     display: inline-block;
     width: 24px;
-    /* Tamanho do ícone do sino */
 }
 
 .notification-badge {
@@ -1217,13 +1216,10 @@ button[type='submit']:hover {
     background-color: red;
     color: white;
     width: 14px;
-    /* Tamanho da bola de notificação */
     height: 14px;
-    /* Tamanho da bola de notificação */
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 8px;
-    /* Tamanho da fonte da notificação */
 }

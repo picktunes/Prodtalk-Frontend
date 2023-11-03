@@ -474,6 +474,44 @@ const MuralDePublicacoes = () => {
         }
     };
 
+    const handleSalvarPublicacao = (publicacao) => {
+        if (carregandoRef.current) {
+            return;
+        }
+
+        carregandoRef.current = true;
+
+        const idPessoa = Number(localStorage.getItem('idPessoa'));
+        const idPublicacao = publicacao.idPublicacao;
+
+        if (publicacao.publicacaoSalva) {
+            axios.delete(`http://localhost:8080/publicacoes-salvas?idPessoa=${idPessoa}&idPublicacao=${idPublicacao}`)
+                .then((response) => {
+                    console.log('Publicação removida dos salvos com sucesso!');
+                    publicacao.publicacaoSalva = false;
+                })
+                .catch((error) => {
+                    console.error('Erro ao remover a publicação dos salvos: ' + error);
+                })
+                .finally(() => {
+                    carregandoRef.current = false;
+                });
+        } else {
+            axios.post('http://localhost:8080/publicacoes-salvas', { idPessoa, idPublicacao })
+                .then((response) => {
+                    console.log('Publicação salva com sucesso!');
+                    publicacao.publicacaoSalva = true;
+                })
+                .catch((error) => {
+                    console.error('Erro ao salvar a publicação: ' + error);
+                })
+                .finally(() => {
+                    carregandoRef.current = false;
+                });
+        }
+        carregandoRef.current = false;
+    };
+
     return (
         <div className="mural-container" style={{ overflow: 'hidden', overflowY: 'auto' }}>
             <TopMenu onSearchSubmit={handleSearchSubmit} searchText={textoDeBuscaRef.current} />
@@ -496,14 +534,12 @@ const MuralDePublicacoes = () => {
                         <div className="publicacao-conteudo">
                             <div className="publicacao-options-button" onClick={() => abrirMenuOpcoes(publicacao.idPublicacao)}>
                                 <div className="image-background"></div>
-                                <img
-                                    src={ellipsis}
-                                    alt="Curtir"
-                                    className="like-image"
-                                />
+                                <img src={ellipsis} alt="Curtir" className="like-image" />
                                 {expandedOption === publicacao.idPublicacao && (
                                     <div className="menu-opcoes">
-                                        <div onClick={() => console.log('Opção 1')}>Salvar publicação</div>
+                                        <div onClick={() => handleSalvarPublicacao(publicacao)}>
+                                            {publicacao.publicacaoSalva ? 'Remover dos Salvos' : 'Salvar nos Favoritos'}
+                                        </div>
                                         <div onClick={() => console.log('Opção 2')}>Denunciar</div>
                                     </div>
                                 )}
