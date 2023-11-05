@@ -21,13 +21,14 @@ const options = [
 
 Modal.setAppElement('#root');
 
-const TopMenu = memo(({ onSearchSubmit }) => {
+const TopMenu = ({ onSearchSubmit }) => {
     const navigate = useNavigate();
     const containerRef = useRef(null);
     const [selectedOption, setSelectedOption] = useState('');
     const [searchText, setSearchText] = useState('');
     const [notificacoes, setNotificacoes] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [notificacoesLoaded, setNotificacoesLoaded] = useState(false);
 
     const handleSearchInputChange = (e) => {
         setSearchText(e.target.value);
@@ -75,20 +76,23 @@ const TopMenu = memo(({ onSearchSubmit }) => {
             svgElement.style.height = `${iconSize}px`;
         });
 
-        (async () => {
-            try {
-                const idPessoa = Number(localStorage.getItem('idPessoa'));
-                const response = await axios.get(`http://localhost:8080/notificacao?idPessoa=${idPessoa}`);
+        if (!notificacoesLoaded) {
+            (async () => {
+                try {
+                    const idPessoa = Number(localStorage.getItem('idPessoa'));
+                    const response = await axios.get(`http://localhost:8080/notificacao?idPessoa=${idPessoa}`);
 
-                const notificacoesData = response.data;
-                console.log('Notificações:', notificacoesData);
+                    const notificacoesData = response.data;
+                    console.log('Notificações:', notificacoesData);
 
-                setNotificacoes(notificacoesData);
-            } catch (error) {
-                console.error('Erro ao buscar notificações:', error);
-            }
-        })();
-    }, []);
+                    setNotificacoes(notificacoesData);
+                    setNotificacoesLoaded(true); // Marca as notificações como carregadas
+                } catch (error) {
+                    console.error('Erro ao buscar notificações:', error);
+                }
+            })();
+        }
+    }, [notificacoesLoaded]);
 
     const handleOptionChange = event => {
         const selectedValue = event.target.value;
@@ -120,7 +124,7 @@ const TopMenu = memo(({ onSearchSubmit }) => {
                     </svg>
                 </Link>
 
-                <Link to="/TelaCategorias" className="menu-button">
+                <Link to="/TelaFavoritos" className="menu-button">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="black">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
                     </svg>
@@ -207,7 +211,7 @@ const TopMenu = memo(({ onSearchSubmit }) => {
         </div >
     );
 
-});
+};
 
 
 export default TopMenu;

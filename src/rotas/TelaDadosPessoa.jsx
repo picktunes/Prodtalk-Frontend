@@ -198,7 +198,6 @@ const TelaDadosPessoa = () => {
 
     return (
         <div className="conteudo-centralizado">
-            <TopMenu />
             <h1></h1>
 
             <div className="container-centralizador">

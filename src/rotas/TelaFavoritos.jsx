@@ -8,17 +8,11 @@ import TopMenu from './TopMenu';
 import 'react-datepicker/dist/react-datepicker.css';
 import likeImage from '../assets/like.png';
 import likedImage from '../assets/liked.png';
-import trend from '../assets/trend.png';
 import ellipsis from '../assets/ellipsis.png';
-import publi from '../assets/write.png';
 import comentarioImage from '../assets/comentario.png';
 
-const TelaCategoria = () => {
-    const { idCategoria } = useParams();
+const TelaFavoritos = () => {
     const carregandoRef = useRef(false);
-    const [categoria, setCategoria] = useState(null);
-    const [categoriasDaPessoa, setCategoriasDaPessoa] = useState([]);
-    const [isCategoriaAssociada, setIsCategoriaAssociada] = useState(false);
     const [publicacoes, setPublicacoes] = useState([]);
     const publicacoesContainerRef = useRef(null);
     const paginaRef = useRef(1);
@@ -58,33 +52,20 @@ const TelaCategoria = () => {
     }, [publicacoes]);
 
     useEffect(() => {
-        const setupIntersectionObserver = () => {
-            const intersectionObserver = new IntersectionObserver((entries) => {
-                if (entries.some((entry) => entry.isIntersecting)) {
-                    console.log('Sentinela appears!');
-                    carregarMaisPublicacoes();
-                }
-            });
-
-            const sentinela = document.getElementById('sentinela');
-            if (sentinela) {
-                intersectionObserver.observe(sentinela);
-            }
-        };
-
-        setupIntersectionObserver();
-        Promise.all([fetchAndSetCategoria(), fetchCategoriasDaPessoa()])
-            .then(() => {
-                setupIntersectionObserver();
-                carregarMaisPublicacoes();
-            })
-            .catch((error) => {
-                console.error("Error in promises:", error);
-            });
-
         console.log("Componente montado / Atualizado!");
-    }, []);
 
+        const intersectionObserver = new IntersectionObserver((entries) => {
+            if (entries.some((entry) => entry.isIntersecting)) {
+                console.log('Sentinela appears!');
+                carregarMaisPublicacoes();
+            }
+        });
+
+        const sentinela = document.getElementById('sentinela');
+        if (sentinela) {
+            intersectionObserver.observe(sentinela);
+        }
+    }, []);
 
     const carregarMaisPublicacoes = async () => {
         await fetchPublicacoes();
@@ -97,18 +78,12 @@ const TelaCategoria = () => {
 
         try {
             carregandoRef.current = true;
-            let response;
-
-            let url = `http://localhost:8080/publicacoes?page=${paginaRef.current}`;
-            if (idCategoria !== null) {
-                url += `&idCategoria=${idCategoria}`;
-            }
-
-            response = await axios.get(url);
+            const idPessoa = Number(localStorage.getItem('idPessoa'));
+            const response = await axios.get(`http://localhost:8080/publicacoes/buscar-publicacoes-favoritas?page=${paginaRef.current}&idPessoa=${idPessoa}`);
 
             if (response.status === 200) {
                 const novasPublicacoes = response.data;
-                setPublicacoes(prevPublicacoes => [...prevPublicacoes, ...novasPublicacoes]);
+                setPublicacoes((prevPublicacoes) => [...prevPublicacoes, ...novasPublicacoes]);
                 paginaRef.current = paginaRef.current + 1;
             } else {
                 console.error('Erro ao buscar as publicações: Status da resposta:', response.status);
@@ -120,116 +95,10 @@ const TelaCategoria = () => {
         }
     };
 
-    const fetchAndSetCategoria = async () => {
-        if (carregandoRef.current) {
-            return;
-        }
-
-        try {
-            carregandoRef.current = true;
-
-            let response = await axios.get(`http://localhost:8080/categoria?idCategoria=${idCategoria}`);
-            if (response.status === 200) {
-                const categoriaRecebida = response.data;
-                setCategoria(categoriaRecebida.data);
-            } else {
-                console.error('Erro ao buscar a categoria: Status da resposta:', response.status);
-            }
-        } catch (error) {
-            console.error('Erro ao buscar a categoria:', error);
-        } finally {
-            carregandoRef.current = false;
-        }
-    };
-
-    const fetchCategoriasDaPessoa = async () => {
-        try {
-            const idPessoa = Number(localStorage.getItem('idPessoa'));
-
-            let response = await axios.get(`http://localhost:8080/pessoa-categoria?idPessoa=${idPessoa}`);
-            if (response.status === 200) {
-                const categoriasDoUsuario = response.data;
-                setCategoriasDaPessoa(categoriasDoUsuario);
-
-                const categoriaAtualAssociada = categoriasDoUsuario.some(categoriaUsuario => categoriaUsuario.idCategoria == idCategoria);
-                setIsCategoriaAssociada(categoriaAtualAssociada);
-            } else {
-                console.error('Erro ao buscar as categorias do usuário:', response.status);
-            }
-        } catch (error) {
-            console.error('Erro ao buscar as categorias do usuário:', error);
-        }
-    };
-
-
-    const associarCategoriaAPessoa = async () => {
-        try {
-            const idPessoa = Number(localStorage.getItem('idPessoa'));
-            const requestBody = {
-                idPessoa: idPessoa,
-                idCategoria: idCategoria
-            };
-
-            const response = await axios.post('http://localhost:8080/pessoa-categoria/', requestBody);
-
-            if (response.status === 200) {
-                fetchCategoriasDaPessoa();
-                categoria.countSeguidores += 1;
-                console.log('Associação bem-sucedida');
-            } else {
-                console.error('Erro na associação da categoria:', response.data);
-            }
-        } catch (error) {
-            console.error('Erro na chamada da API:', error);
-        }
-    };
-
-    const desassociarCategoriaAPessoa = async () => {
-        try {
-            const idPessoa = Number(localStorage.getItem('idPessoa'));
-            const idCategoria = categoria.idCategoria;
-
-            const config = {
-                headers: {
-                    'idPessoa': idPessoa,
-                    'idCategoria': idCategoria
-                },
-            };
-
-            const response = await axios.delete('http://localhost:8080/pessoa-categoria/', config);
-
-            if (response.status === 200) {
-                fetchCategoriasDaPessoa();
-                categoria.countSeguidores -= 1;
-                console.log('Desassociação bem-sucedida');
-            } else {
-                console.error('Erro na desassociação da categoria:', response.data);
-            }
-        } catch (error) {
-            console.error('Erro na chamada da API:', error);
-        }
-    };
-
-    const handleSeguirClick = () => {
-        associarCategoriaAPessoa();
-    };
-
-    const deixarDeSeguirClick = () => {
-        desassociarCategoriaAPessoa();
-    };
-
-    //////////////////////////////////////////
-    const abrirMenuOpcoes = (publicacaoId) => {
-        if (expandedOption === publicacaoId) {
-            setExpandedOption(null);
-        } else {
-            setExpandedOption(publicacaoId);
-        }
-    };
 
     const handleCategoriaClick = (categoria) => {
         if (categoria && categoria.idCategoria) {
-            navigate(`/TelaCategoria/${categoria.idCategoria}`);
+            navigate(`/TelaCategoria / ${categoria.idCategoria}`);
         }
     };
 
@@ -246,8 +115,6 @@ const TelaCategoria = () => {
             [publicacaoId]: false,
         }));
     };
-
-
 
     const adicionarComentario = async (publicacaoExterna, idComentarioSuperior, comentarioPublicacao) => {
         const comentarioRespostaPublicacao = comentarios[idComentarioSuperior];
@@ -377,7 +244,7 @@ const TelaCategoria = () => {
     };
 
     const getClassForRespostaNivel = (nivel) => {
-        return `resposta-nivel-${nivel}`;
+        return `resposta - nivel - ${nivel}`;
     };
 
     const toggleFormularioComentario = (comentarioId) => {
@@ -391,7 +258,7 @@ const TelaCategoria = () => {
 
     const renderRespostas = (respostas, nivel, publicacao) => {
         return (
-            <div className={`respostas-resposta-nivel-${nivel}`}>
+            <div className={`respostas - resposta - nivel - ${nivel}`}>
                 {respostas.map((resposta) => (
                     <div key={resposta.idComentario} className="comentario">
                         <div className="comentario-autor">{resposta.pessoa.nomeCompleto}</div>
@@ -437,11 +304,6 @@ const TelaCategoria = () => {
         );
     };
 
-    if (categoria === null) {
-
-        return <div id="sentinela" className="loading-text">...</div>;
-    }
-
     return (
 
         <div className="mural-container" style={{ overflow: 'hidden', overflowY: 'auto' }}>
@@ -449,98 +311,8 @@ const TelaCategoria = () => {
             <div style={{ height: '35px' }}></div>
 
             <div className="publicacoes-categoria-container" ref={publicacoesContainerRef}>
-
-                <div className="conteudo-capa">
-
-                    <div className="imagem-capa">
-                        <img src={`data:image/jpeg;base64, ${categoria.imgCapa}`} className="capa-imagem" style={{ height: '100px' }} />
-                    </div>
-
-                    <div className="imagem-120px-container">
-                        <img src={`data: image/jpeg;base64, ${categoria.img}`} className="imagem-120px" />
-                        <div className="conteudo-nome-descricao">
-                            <h1>{categoria.dsNome}</h1>
-                            <p>{categoria.dsDescricao}</p>
-                        </div>
-                    </div>
-
-                    <div className="botoes-container">
-                        <div className="info-container">
-                            <button
-                                style={{
-                                    backgroundColor: 'transparent',
-                                    border: 'none',
-                                    padding: 0,
-                                    position: 'relative'
-                                }}
-                            >
-                                <div className="image-background"></div>
-                                <img
-                                    src={trend}
-                                    alt="Curtir"
-                                    className="like-image"
-                                />
-                            </button>
-                            <span className="separator">•</span>
-                            <span>{categoria.countSeguidores} seguidores</span>
-                        </div>
-
-                        <div className="info-container">
-                            <button
-                                style={{
-                                    backgroundColor: 'transparent',
-                                    border: 'none',
-                                    padding: 0,
-                                    position: 'relative'
-                                }}
-                            >
-                                <div className="image-background"></div>
-                                <img
-                                    src={publi}
-                                    alt="Curtir"
-                                    className="like-image"
-                                />
-                            </button>
-                            <span className="separator">•</span>
-                            <span>{categoria.countPublicacoes} postagens</span>
-                        </div>
-
-                        <div className="button-container">
-                            <button
-                                style={{
-                                    backgroundColor: 'transparent',
-                                    border: 'none',
-                                    padding: 0,
-                                    position: 'relative'
-                                }}
-                            >
-                                <div className="image-background"></div>
-                                <img
-                                    src={ellipsis}
-                                    alt="Curtir"
-                                    className="like-image"
-                                />
-                            </button>
-
-                            {isCategoriaAssociada ? (
-                                <button className="botao-retangular" onClick={deixarDeSeguirClick}>
-                                    Deixar de Seguir
-                                </button>
-                            ) : (
-                                <button className="botao-retangular" onClick={handleSeguirClick}>
-                                    Seguir
-                                </button>
-                            )}
-
-                        </div>
-                    </div>
-                </div>
-
-                <div className="espaco-publicacoes" style={{ margin: '10px' }}>
-                </div>
-
                 {publicacoes.map((publicacao, index) => (
-                    <div key={`${publicacao.idPublicacao}-${index}`} className="publicacao">
+                    <div key={`${publicacao.idPublicacao} - ${index}`} className="publicacao">
 
                         {/* Conteúdo da Publicação */}
                         <div className="publicacao-conteudo">
@@ -578,7 +350,7 @@ const TelaCategoria = () => {
                                         ) : (
                                             truncateText(publicacao.conteudo, 300)
                                         )}
-                                        {publicacao.conteudo.length > 600 && (
+                                        {publicacao.conteudo.length > 300 && (
                                             <a
                                                 href="#"
                                                 onClick={(e) => {
@@ -589,14 +361,14 @@ const TelaCategoria = () => {
                                                 }}
                                                 className="ver-mais-button"
                                             >
-                                                {expandedContent[publicacao.idPublicacao] ? 'Ver menos' : 'Ver mais'}
+                                                {expandedContent[publicacao.idPublicacao] ? ' Ver menos' : ' Ver mais'}
                                             </a>
                                         )}
                                     </>
                                 )}
                             </div>
                             {publicacao.img && (
-                                <img src={`data:image/jpeg;base64,${publicacao.img}`} alt="Imagem da publicação" className="publicacao-imagem" />
+                                <img src={`data: image / jpeg; base64, ${publicacao.img} `} alt="Imagem da publicação" className="publicacao-imagem" />
                             )}
                         </div>
 
@@ -628,7 +400,7 @@ const TelaCategoria = () => {
 
 
                                     {publicacao.comentarios.map((comentario) => (
-                                        <div key={comentario.idComentario} className={`comentario ${getClassForRespostaNivel(comentario.nivel)}`}>
+                                        <div key={comentario.idComentario} className={`comentario ${getClassForRespostaNivel(comentario.nivel)} `}>
                                             <div className="comentario-autor">{comentario.pessoa.nomeCompleto}</div>
 
                                             <div className="comentario-conteudo">{comentario.conteudo}</div>
@@ -718,4 +490,4 @@ const TelaCategoria = () => {
     );
 };
 
-export default TelaCategoria;
+export default TelaFavoritos;

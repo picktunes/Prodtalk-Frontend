@@ -1,54 +1,86 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { createBrowserRouter, RouterProvider, Route } from 'react-router-dom';
+import LoginPage from './rotas/LoginPage';
+import TelaCadastro from './rotas/TelaCadastro';
+import TelaDadosPessoa from './rotas/TelaDadosPessoa';
+import TelaInicial from './rotas/TelaInicial';
+import TelaCategorias from './rotas/TelaCategorias';
+import TelaCategoria from './rotas/TelaCategoria';
+import TelaPublicacao from './rotas/TelaPublicacao';
+import TelaFavoritos from './rotas/TelaFavoritos';
+import Layout from './rotas/Layout';
 import './index.css'
-
-import { createBrowserRouter, RouterProvider, Route } from 'react-router-dom'
-
-import LoginPage from "./rotas/LoginPage";
-import TelaCadastro from "./rotas/TelaCadastro";
-import TelaDadosPessoa from "./rotas/TelaDadosPessoa";
-import TelaInicial from "./rotas/TelaInicial";
-import TelaCategorias from "./rotas/TelaCategorias";
-import TelaCategoria from "./rotas/TelaCategoria";
-import TelaPublicacao from "./rotas/TelaPublicacao";
-import TopMenu from "./rotas/TopMenu";
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <LoginPage />
+    path: '/',
+    element: (
+      <Layout>
+        <LoginPage />
+      </Layout>
+    ),
   },
   {
-    path: "telaCadastro",
-    element: <TelaCadastro />
+    path: 'telaCadastro',
+    element: (
+      <Layout>
+        <TelaCadastro />
+      </Layout>
+    ),
   },
   {
-    path: "telaInicial",
-    element: <TelaInicial />
+    path: 'telaInicial',
+    element: (
+      <Layout>
+        <TelaInicial />
+      </Layout>
+    ),
   },
   {
-    path: "telaDadosPessoa",
-    element: <TelaDadosPessoa />
+    path: 'telaDadosPessoa',
+    element: (
+      <Layout>
+        <TelaDadosPessoa />
+      </Layout>
+    ),
   },
   {
-    path: "TelaCategorias",
-    element: <TelaCategorias />
+    path: 'TelaCategorias',
+    element: (
+      <Layout>
+        <TelaCategorias />
+      </Layout>
+    ),
   },
   {
-    path: "TelaCategoria/:idCategoria",
-    element: <TelaCategoria />
+    path: 'TelaCategoria/:idCategoria',
+    element: (
+      <Layout>
+        <TelaCategoria />
+      </Layout>
+    ),
   },
   {
-    path: "TelaPublicacao/:idPublicacao",
-    element: <TelaPublicacao />
+    path: 'TelaPublicacao/:idPublicacao',
+    element: (
+      <Layout>
+        <TelaPublicacao />
+      </Layout>
+    ),
+  },
+  {
+    path: 'TelaFavoritos',
+    element: (
+      <Layout>
+        <TelaFavoritos />
+      </Layout>
+    ),
   },
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <RouterProvider router={router}>
-      <TopMenu />
-      <Route path="*" element={<TopMenu />} />
-    </RouterProvider>
-  </React.StrictMode>,
-)
+    <RouterProvider router={router} />
+  </React.StrictMode>
+);
