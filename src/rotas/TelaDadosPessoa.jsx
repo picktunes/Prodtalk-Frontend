@@ -237,11 +237,11 @@ const TelaDadosPessoa = () => {
                         <form onSubmit={handleSalvarPessoa}>
                             <div className="dados-pessoa-form">
                                 <h2>Informações da Pessoa</h2>
-                                <div className="form-group">
+                                <div className="form-group-pessoa">
                                     <label htmlFor="imagem">Foto de perfil(pgn ou jpg): </label>
                                     <input type="file" id="imagem" accept="image/png, image/jpeg" onChange={handleImageChange} />
                                 </div>
-                                <div className="form-group">
+                                <div className="form-group-pessoa">
                                     <label htmlFor="nomeCompleto">Nome Completo</label>
                                     <input
                                         type="text"
@@ -251,7 +251,7 @@ const TelaDadosPessoa = () => {
                                         onChange={handleInputChange}
                                     />
                                 </div>
-                                <div className="form-group">
+                                <div className="form-group-pessoa">
                                     <label>Sexo</label>
                                     <div className="radio-group">
                                         <label>
@@ -276,17 +276,8 @@ const TelaDadosPessoa = () => {
                                         </label>
                                     </div>
                                 </div>
-                                <div className="form-group">
-                                    <label htmlFor="idade" className="label-data-nascimento">Data de nascimento</label>
-                                    <DatePicker
-                                        selected={formData.idade}
-                                        onChange={handleIdadeChange}
-                                        dateFormat="dd/MM/yyyy"
-                                        showYearDropdown
-                                        scrollableYearDropdown
-                                    />
-                                </div>
-                                <div className="form-group">
+
+                                <div className="form-group-pessoa">
                                     <label htmlFor="profissao">Profissão/Ocupação</label>
                                     <input
                                         type="text"
@@ -296,7 +287,7 @@ const TelaDadosPessoa = () => {
                                         onChange={handleInputChange}
                                     />
                                 </div>
-                                <div className="form-group">
+                                <div className="form-group-pessoa">
                                     <label htmlFor="biografia">Biografia</label>
                                     <textarea
                                         id="biografia"
@@ -317,7 +308,7 @@ const TelaDadosPessoa = () => {
                             <div className="dados-pessoa-form">
                                 <h2>Configurações de conta</h2>
 
-                                <div className="form-group">
+                                <div className="form-group-pessoa">
                                     <label htmlFor="email">E-mail</label>
                                     <input
                                         type="text"
@@ -328,7 +319,7 @@ const TelaDadosPessoa = () => {
                                     />
                                 </div>
 
-                                <div className="form-group">
+                                <div className="form-group-pessoa">
                                     <label htmlFor="login">Login</label>
                                     <input
                                         type="text"
@@ -339,7 +330,7 @@ const TelaDadosPessoa = () => {
                                     />
                                 </div>
 
-                                <div className="form-group">
+                                <div className="form-group-pessoa">
                                     <label>Senha</label>
                                     <div>
                                         <a href="#" onClick={openChangePasswordPopup}>Alterar senha</a>
@@ -362,7 +353,7 @@ const TelaDadosPessoa = () => {
                                         X
                                     </button>
                                     <h3>Alterar Senha</h3>
-                                    <div className="form-group">
+                                    <div className="form-group-pessoa">
                                         <label htmlFor="newPassword">Nova Senha</label>
                                         <div></div>
                                         <input
@@ -372,7 +363,7 @@ const TelaDadosPessoa = () => {
                                             onChange={(e) => setNewPassword(e.target.value)}
                                         />
                                     </div>
-                                    <div className="form-group">
+                                    <div className="form-group-pessoa">
                                         <label htmlFor="confirmNewPassword">Confirmar Nova Senha</label>
                                         <div></div>
                                         <input
@@ -382,7 +373,7 @@ const TelaDadosPessoa = () => {
                                             onChange={(e) => setConfirmNewPassword(e.target.value)}
                                         />
                                     </div>
-                                    <button type="button" onClick={changePasswordOnClick}>
+                                    <button type="confirmar-button" className="confirmar-button" onClick={changePasswordOnClick}>
                                         Salvar
                                     </button>
                                 </div>

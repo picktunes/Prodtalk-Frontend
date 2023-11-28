@@ -12,6 +12,7 @@ import trend from '../assets/trend.png';
 import ellipsis from '../assets/ellipsis.png';
 import publi from '../assets/write.png';
 import comentarioImage from '../assets/comentario.png';
+import emptyImage from '../assets/emptyImg.png';
 
 const TelaCategoria = () => {
     const { idCategoria } = useParams();
@@ -453,16 +454,24 @@ const TelaCategoria = () => {
                 <div className="conteudo-capa">
 
                     <div className="imagem-capa">
-                        <img src={`data:image/jpeg;base64, ${categoria.imgCapa}`} className="capa-imagem" style={{ height: '100px' }} />
+                        <img
+                            src={categoria.imgCapa ? `data:image/jpeg;base64, ${categoria.imgCapa}` : emptyImage}
+                            className="capa-imagem"
+                            style={{ height: '100px' }}
+                        />
                     </div>
 
                     <div className="imagem-120px-container">
-                        <img src={`data: image/jpeg;base64, ${categoria.img}`} className="imagem-120px" />
+                        <img
+                            src={categoria.img ? `data:image/jpeg;base64, ${categoria.img}` : emptyImage}
+                            className="imagem-120px"
+                        />
                         <div className="conteudo-nome-descricao">
                             <h1>{categoria.dsNome}</h1>
                             <p>{categoria.dsDescricao}</p>
                         </div>
                     </div>
+
 
                     <div className="botoes-container">
                         <div className="info-container">

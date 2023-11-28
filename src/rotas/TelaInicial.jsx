@@ -29,6 +29,11 @@ const MuralDePublicacoes = () => {
     const [searchText, setSearchText] = useState('');
     const [suggestedCategories, setSuggestedCategories] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
+    const [exibirPopupDenuncia, setExibirPopupDenuncia] = useState(false);
+    const [tipoDenuncia, setTipoDenuncia] = useState("");
+    const [observacaoDenuncia, setObservacaoDenuncia] = useState("");
+    const [publicacaoAlvo, setPublicacaoAlvo] = useState('');
+    const [exibirPopupEdicao, setExibirPopupEdicao] = useState(false);
 
     const handleSearchSubmit = (searchText) => {
         if (searchText !== textoDeBuscaRef.current) {
@@ -170,6 +175,53 @@ const MuralDePublicacoes = () => {
         setExibirPopup(false);
         document.body.classList.remove('popup-open');
     };
+
+    const abrirPopupDenuncia = (publicacao) => {
+        setPublicacaoAlvo(publicacao);
+        setExibirPopupDenuncia(true);
+        document.body.classList.add('popup-open');
+    };
+
+    const fecharPopupDenuncia = () => {
+        setPublicacaoAlvo('');
+        setExibirPopupDenuncia(false);
+        document.body.classList.remove('popup-open');
+    };
+
+    const handleDenunciaSubmit = async (event) => {
+        event.preventDefault();
+        const observacaoElement = document.getElementById('observacao');
+        const tipoDenunciaValue = tipoDenuncia;
+        const observacaoValue = observacaoElement ? observacaoElement.value : "";
+
+        const denunciaData = {
+            idPessoa: Number(localStorage.getItem('idPessoa')),
+            dataDenuncia: null,
+            descricao: observacaoValue !== '' ? observacaoValue : '',
+            status: 'S',
+            tipoDenunciaId: tipoDenunciaValue,
+            idPublicacao: publicacaoAlvo.idPublicacao,
+            idComentario: null,
+            idCategoria: null
+        };
+
+        try {
+            const response = await axios.post('http://localhost:8080/denuncia', denunciaData);
+
+            toast.success("Denúncia realizada com sucesso.");
+            setObservacaoDenuncia('');
+            fecharPopupDenuncia();
+        } catch (error) {
+            toast.error("Não foi possível realizar denúncia.");
+            fecharPopupDenuncia();
+        }
+    };
+
+    const handleTipoDenunciaChange = (event) => {
+        const novoTipoDenuncia = event.target.value;
+        setTipoDenuncia(novoTipoDenuncia);
+    };
+
 
     const handleSubmit = (event) => {
         console.log("Formulário submetido");
@@ -474,6 +526,12 @@ const MuralDePublicacoes = () => {
         }
     };
 
+    const handlePessoaClick = (pessoa) => {
+        if (pessoa && pessoa.idPessoa) {
+            navigate(`/TelaPerfil/${pessoa.idPessoa}`);
+        }
+    };
+
     const handleSalvarPublicacao = (publicacao) => {
         if (carregandoRef.current) {
             return;
@@ -512,6 +570,92 @@ const MuralDePublicacoes = () => {
         carregandoRef.current = false;
     };
 
+    const handleExcluirPublicacao = (publicacao) => {
+        if (carregandoRef.current) {
+            return;
+        }
+
+        carregandoRef.current = true;
+
+        const idPublicacao = publicacao.idPublicacao;
+
+        axios.delete(`http://localhost:8080/publicacoes?idPublicacao=${idPublicacao}`)
+            .then((response) => {
+                publicacao.publicacaoSalva = false;
+                const novasPublicacoes = publicacoes.filter(p => p.idPublicacao !== idPublicacao);
+                setPublicacoes(novasPublicacoes);
+                toast.success('Publicação excluída  com sucesso.');
+            })
+            .catch((error) => {
+                toast.error('Não foi possível excluir a publicação.');
+            })
+            .finally(() => {
+                carregandoRef.current = false;
+            });
+    };
+
+    const handleObservacaoDenunciaChange = (event) => {
+        setObservacaoDenuncia(event.target.value);
+    };
+
+    const handleAlterarPublicacao = (publicacao) => {
+        setPublicacaoAlvo(publicacao);
+        setExibirPopupEdicao(true);
+    };
+
+    const fecharPopupEdicao = () => {
+        setExibirPopupEdicao(false);
+        setPublicacaoAlvo(null);
+    };
+
+    const alterarPublicacao = async () => {
+        console.log("alterarPublicacao chamada");
+
+        const tituloElement = document.getElementById('titulo');
+        const conteudoElement = document.getElementById('conteudo');
+        const tituloValue = tituloElement ? tituloElement.value : "";
+        const conteudoValue = conteudoElement ? conteudoElement.value : "";
+
+        let base64 = null;
+
+        if (file) {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+
+            await new Promise((resolve) => {
+                reader.onload = function () {
+                    base64 = reader.result.split(',')[1];
+                    resolve();
+                };
+            });
+        }
+
+        const categoria = selectedCategory;
+
+        const publicacao = {
+            idPublicacao: publicacaoAlvo.idPublicacao,
+            conteudo: conteudoValue,
+            titulo: tituloValue,
+        }
+
+        try {
+            await axios.post('http://localhost:8080/publicacoes/publicacao', publicacao);
+
+            console.log("Dados enviados com sucesso!");
+
+            if (file) {
+                setFile(null);
+            }
+
+            //fecharPopupEdicao();
+            //setPublicacoes([]);
+            //   paginaRef.current = 1;
+            // await carregarMaisPublicacoes();
+        } catch (error) {
+            console.error("Erro ao enviar os dados:", error);
+        }
+    };
+
     return (
         <div className="mural-container" style={{ overflow: 'hidden', overflowY: 'auto' }}>
             <TopMenu onSearchSubmit={handleSearchSubmit} searchText={textoDeBuscaRef.current} />
@@ -523,6 +667,9 @@ const MuralDePublicacoes = () => {
                     </div>
                 </div>
             )}
+
+
+            <ToastContainer />
 
             <div className="espaco-publicacoes"></div>
 
@@ -540,12 +687,19 @@ const MuralDePublicacoes = () => {
                                         <div onClick={() => handleSalvarPublicacao(publicacao)}>
                                             {publicacao.publicacaoSalva ? 'Remover dos Salvos' : 'Salvar nos Favoritos'}
                                         </div>
-                                        <div onClick={() => console.log('Opção 2')}>Denunciar</div>
+                                        <div onClick={() => abrirPopupDenuncia(publicacao)}>Denunciar</div>
+                                        {/* Condição para "Excluir" e "Alterar" */}
+                                        {publicacao.pessoa.idPessoa === Number(localStorage.getItem('idPessoa')) && (
+                                            <>
+                                                <div onClick={() => handleExcluirPublicacao(publicacao)}>Excluir</div>
+                                                <div onClick={() => handleAlterarPublicacao(publicacao)}>Alterar</div>
+                                            </>
+                                        )}
                                     </div>
                                 )}
                             </div>
                             <div className="publicacao-header">
-                                <div className="conteiner-inline">
+                                <div className="conteiner-inline" onClick={() => handlePessoaClick(publicacao.pessoa)} style={{ cursor: 'pointer' }}>
                                     <img
                                         src={`data:image/jpeg;base64, ${publicacao.pessoa.fotoPerfil}`}
                                         className="foto-perfil"
@@ -729,14 +883,7 @@ const MuralDePublicacoes = () => {
                                         <label htmlFor="conteudo">Conteúdo</label>
                                         <textarea id="conteudo"></textarea>
                                     </div>
-                                    <div className="form-group">
-                                        <label>
-                                            <input type="radio" name="tipo" value="pergunta" /> Pergunta
-                                        </label>
-                                        <label>
-                                            <input type="radio" name="tipo" value="feedback" /> Feedback
-                                        </label>
-                                    </div>
+
                                     <div>
                                         <div className="form-group">
                                             <label htmlFor="categoria">Categoria</label>
@@ -772,7 +919,112 @@ const MuralDePublicacoes = () => {
                     </div>
                 )
             }
-            <ToastContainer />
+
+            {
+                exibirPopupDenuncia && (
+                    <div className="popup-overlay">
+                        <div className="popup-container">
+                            <div className="popup">
+                                <button className="popup-close-button" onClick={fecharPopupDenuncia}>
+                                    X
+                                </button>
+                                <h3>Denunciar Conteúdo</h3>
+                                <form onSubmit={handleDenunciaSubmit}>
+                                    <div className="form-group">
+                                        <label>Selecione o tipo de denúncia:</label>
+                                        <select
+                                            value={tipoDenuncia}
+                                            onChange={(event) => setTipoDenuncia(event.target.value)}
+                                        >
+                                            <option value="">Selecione uma opção</option>
+                                            <option value="1">Spam</option>
+                                            <option value="2">Venda de bens ilegais, golpes de dinheiro, etc.</option>
+                                            <option value="3">Discurso de ódio</option>
+                                            <option value="4">Ataque grave a um grupo</option>
+                                            <option value="5">Assédio e bullying</option>
+                                            <option value="6">Atividades prejudiciais</option>
+                                            <option value="7">Conteúdo adulto (Consensual)</option>
+                                            <option value="8">Nudez/Conteúdo sexual</option>
+                                            <option value="9">Exploração e abuso sexual (segurança infantil)</option>
+                                            <option value="10">Exploração e abuso sexual (adultos e animais)</option>
+                                            <option value="11">Plágio</option>
+                                            <option value="12">Imagem ruim</option>
+                                        </select>
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="observacao">Observação (obrigatório):</label>
+                                        <textarea
+                                            id="observacao"
+                                            value={observacaoDenuncia}
+                                            onChange={(event) => setObservacaoDenuncia(event.target.value)}
+                                        />
+                                    </div>
+                                    <div className="form-group button-group">
+                                        <button type="submit" className="confirmar-button">
+                                            Denunciar
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
+            {exibirPopupEdicao && publicacaoAlvo && (
+                <div className="popup-overlay">
+                    <div className="popup-container">
+                        <div className="popup">
+                            <button className="popup-close-button" onClick={fecharPopupEdicao}>
+                                X
+                            </button>
+                            <h3>Alterar Publicação</h3>
+                            <form >
+                                <div className="form-group">
+                                    <label htmlFor="titulo">Título</label>
+                                    <input type="text" id="titulo" value={publicacaoAlvo.titulo} onChange={(e) => setPublicacaoAlvo({ ...publicacaoAlvo, titulo: e.target.value })} />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="conteudo">Conteúdo</label>
+                                    <textarea id="conteudo" value={publicacaoAlvo.conteudo} onChange={(e) => setPublicacaoAlvo({ ...publicacaoAlvo, conteudo: e.target.value })} />
+                                </div>
+
+                                <div>
+                                    <div className="form-group">
+                                        <label htmlFor="categoria">Categoria</label>
+                                        <input
+                                            type="text"
+                                            id="categoria"
+                                            value={searchText}
+                                            onChange={handleCategoryChange}
+                                        />
+                                        {suggestedCategories.length > 0 && (
+                                            <ul className="suggestions">
+                                                {suggestedCategories.map((category) => (
+                                                    <li key={category.idCategoria} onClick={() => selectCategory(category)}>
+                                                        {category.dsNome}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="imagem">Imagem (png ou jpg)</label>
+                                    <input type="file" id="imagem" accept="image/png, image/jpeg" onChange={handleImageChange} />
+                                </div>
+                                <div className="form-group button-group">
+                                    <button type="submit" className="confirmar-button" onClick={alterarPublicacao}>
+                                        Confirmar Alterações
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <ToastContainer style={{ top: "40px" }} />
         </div >
     );
 };

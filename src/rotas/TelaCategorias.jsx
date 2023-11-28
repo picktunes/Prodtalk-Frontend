@@ -7,6 +7,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import TopMenu from './TopMenu';
 import 'react-datepicker/dist/react-datepicker.css';
+import emptyImage from '../assets/emptyImg.png';
 
 const TelaCategorias = () => {
     const navigate = useNavigate();
@@ -213,7 +214,10 @@ const TelaCategorias = () => {
                                 <div className="categoria-info" key={categoria.idCategoria}>
                                     <li className="categoria-item" onClick={() => handleCategoriaClick(categoria)}>
                                         <div className="imagem-capa">
-                                            <img src={`data: image / jpeg; base64, ${categoria.img} `} className="imagem-30px" />
+                                            <img
+                                                src={categoria.img ? `data:image/jpeg;base64, ${categoria.img}` : emptyImage}
+                                                className="imagem-30px"
+                                            />
                                         </div>
                                         <h3>{categoria.dsNome}</h3>
                                     </li>
@@ -243,11 +247,18 @@ const TelaCategorias = () => {
                             descubraCategorias.slice(0, 50).map((categoriaNova, index) => (
                                 <div key={categoriaNova.idCategoria} className="categoria-card" onClick={() => handleCategoriaClick(categoriaNova)}>
                                     <div className="imagem-capa">
-                                        <img src={`data: image / jpeg; base64, ${categoriaNova.imgCapa} `} className="capa-imagem" style={{ height: '100px' }} />
-
+                                        <img
+                                            src={categoriaNova.imgCapa ? `data:image/jpeg;base64, ${categoriaNova.imgCapa}` : emptyImage}
+                                            className="capa-imagem"
+                                            style={{ height: '100px' }}
+                                        />
                                     </div>
+
                                     <div className="imagem-capa">
-                                        <img src={`data: image / jpeg; base64, ${categoriaNova.img} `} className="imagem-60px" />
+                                        <img
+                                            src={categoriaNova.img ? `data:image/jpeg;base64, ${categoriaNova.img}` : emptyImage}
+                                            className="imagem-60px"
+                                        />
                                     </div>
                                     <h3>{categoriaNova.dsNome}</h3>
                                     <p>{categoriaNova.dsDescricao}</p>

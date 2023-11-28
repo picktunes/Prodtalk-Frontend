@@ -45,12 +45,20 @@
 
 .form-group {
     margin-bottom: 15px;
-    max-width: 300px;
 }
 
 .form-group-senha {
     margin-bottom: 15px;
     max-width: 600px;
+}
+
+.dados-pessoa-form {
+    margin: 15px;
+}
+
+.form-group-pessoa {
+    margin: 15px;
+    max-width: 300px;
 }
 
 .form-label {
@@ -308,7 +316,8 @@ textarea {
 }
 
 button {
-    background-color: #007bff;
+    flex-shrink: 0;
+    background-color: rgb(55, 73, 240);
     color: #fff;
     border: none;
     padding: 10px 15px;
@@ -466,6 +475,12 @@ button[type='submit']:hover {
     height: auto;
 }
 
+.linha {
+    color: rgb(3, 2, 2);
+    border-top: 1px solid #ccc;
+    padding-top: 8px;
+}
+
 .popup-overlay {
     position: fixed;
     top: 0;
@@ -578,6 +593,19 @@ button[type='submit']:hover {
     margin: 0;
     max-width: 100%;
     max-height: 100%;
+
+}
+
+.info-perfil-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.info-perfil-item {
+    color: #808080;
+    margin-right: 10px;
+    margin-bottom: 10px;
 }
 
 .botoes-container button {
@@ -611,6 +639,7 @@ button[type='submit']:hover {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
+
 }
 
 .comment-input {
@@ -620,6 +649,7 @@ button[type='submit']:hover {
 
 .comment-button {
     flex-shrink: 0;
+    background-color: rgb(55, 73, 240);
 }
 
 .publicacao-comentarios hr {
@@ -729,9 +759,17 @@ button[type='submit']:hover {
     color: #333;
 }
 
-.dados-pessoa-form {
+.dados-perfil {
     margin: 20px;
+    max-width: 800px;
+    width: 100%;
+    box-shadow: 0px 0px 5px rgba(187, 102, 102, 0.5);
+    height: 750px;
+    /* Ajuste a altura conforme necessário */
+    overflow-y: auto;
+    /* Adiciona uma barra de rolagem vertical quando necessário */
 }
+
 
 .label-data-nascimento {
     margin-bottom: 10px;
@@ -952,6 +990,17 @@ button[type='submit']:hover {
     margin-left: 10px;
 }
 
+.perfil-publicacao-item {
+    display: flex;
+    align-items: center;
+    box-shadow: 0px 0px 5px rgba(15, 12, 0, 0.5);
+    cursor: pointer;
+}
+
+.perfil-publicacao-item h3 {
+    margin-left: 10px;
+}
+
 .conteudo-centralizado-categorias {
     box-sizing: initial;
     width: calc(100vw - 10px);
@@ -1099,6 +1148,13 @@ button[type='submit']:hover {
     margin-right: 5px;
 }
 
+.foto-perfil-grande {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
 .conteiner-inline {
     display: flex;
     align-items: center;
@@ -1107,7 +1163,13 @@ button[type='submit']:hover {
 .loading-text {
     font-size: 50px;
     animation: pulse 1s infinite;
+    position: relative;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
 }
+
 
 @keyframes pulse {
 

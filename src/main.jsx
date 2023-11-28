@@ -9,6 +9,7 @@ import TelaCategorias from './rotas/TelaCategorias';
 import TelaCategoria from './rotas/TelaCategoria';
 import TelaPublicacao from './rotas/TelaPublicacao';
 import TelaFavoritos from './rotas/TelaFavoritos';
+import TelaPerfil from './rotas/TelaPerfil';
 import Layout from './rotas/Layout';
 import './index.css'
 
@@ -16,9 +17,7 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: (
-      <Layout>
-        <LoginPage />
-      </Layout>
+      <LoginPage />
     ),
   },
   {
@@ -74,6 +73,14 @@ const router = createBrowserRouter([
     element: (
       <Layout>
         <TelaFavoritos />
+      </Layout>
+    ),
+  },
+  {
+    path: 'TelaPerfil/:idPessoa',
+    element: (
+      <Layout>
+        <TelaPerfil />
       </Layout>
     ),
   },
