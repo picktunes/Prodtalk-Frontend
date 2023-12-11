@@ -21,7 +21,7 @@ const options = [
 
 Modal.setAppElement('#root');
 
-const TopMenu = ({ onSearchSubmit }) => {
+const TopMenu = ({ }) => {
     const navigate = useNavigate();
     const containerRef = useRef(null);
     const [selectedOption, setSelectedOption] = useState('');
@@ -36,13 +36,11 @@ const TopMenu = ({ onSearchSubmit }) => {
 
     const handleSearchSubmit = (e) => {
         e.preventDefault();
-        onSearchSubmit(searchText);
+        document.dispatchEvent(new CustomEvent('onSubmitSearch', { detail: searchText }));
     };
 
     const handleNotificacaoClick = async () => {
         setIsModalOpen(true);
-
-
     };
 
     const closeModal = () => {
@@ -181,7 +179,9 @@ const TopMenu = ({ onSearchSubmit }) => {
                     notificacoes.map((notificacao, index) => (
                         <div key={index} className="notification-item" onClick={() => handleNotificationClick(notificacao.publicacao.idPublicacao)}>
                             <p>
-                                <img src={`data: image / jpeg; base64, ${notificacao.publicacao.img} `} className="imagem-30px-middle" />
+                                {notificacao.publicacao.img && (
+                                    <img src={`data:image/jpeg;base64,${notificacao.publicacao.img}`} className="imagem-30px-middle" alt="Imagem da publicação" />
+                                )}
                                 {notificacao.nrNotificacoes === 1 ? 'Existe ' : 'Existem '}
                                 {notificacao.nrNotificacoes}
                                 {' '}

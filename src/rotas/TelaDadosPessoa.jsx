@@ -62,25 +62,11 @@ const TelaDadosPessoa = () => {
 
         const idPessoa = Number(localStorage.getItem('idPessoa'));
 
-        if (!formData.nomeCompleto || !formData.idade || !formData.sexo) {
+        if (!formData.nomeCompleto || !formData.sexo) {
             toast.error("Por favor, preencha todos os campos obrigatórios.");
             return;
         }
 
-        // Calcula a idade a partir da data de nascimento
-        const dataNascimento = formData.idade;
-        const dataAtual = new Date();
-        const diff = dataAtual.getFullYear() - dataNascimento.getFullYear();
-
-        let pessoaIdade = 0;
-
-        // Verifica se o aniversário ainda não ocorreu neste ano
-        if (dataAtual.getMonth() < dataNascimento.getMonth() ||
-            (dataAtual.getMonth() === dataNascimento.getMonth() && dataAtual.getDate() < dataNascimento.getDate())) {
-            pessoaIdade = diff - 1; // Se ainda não fez aniversário neste ano, subtrai 1 da idade.
-        } else {
-            pessoaIdade = diff; // Caso contrário, mantém a idade calculada.
-        }
 
         let base64 = null;
         if (file) {
@@ -97,7 +83,7 @@ const TelaDadosPessoa = () => {
         const pessoaData = {
             idPessoa,
             nomeCompleto: formData.nomeCompleto,
-            idade: pessoaIdade, // Usando a idade calculada
+            idade: null, // Usando a idade calculada
             sexo: formData.sexo,
             profissao: formData.profissao || null,
             fotoPerfil: base64,

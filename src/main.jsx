@@ -23,9 +23,7 @@ const router = createBrowserRouter([
   {
     path: 'telaCadastro',
     element: (
-      <Layout>
-        <TelaCadastro />
-      </Layout>
+      <TelaCadastro />
     ),
   },
   {

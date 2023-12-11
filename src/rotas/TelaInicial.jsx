@@ -436,7 +436,13 @@ const MuralDePublicacoes = () => {
             <div className={`respostas-resposta-nivel-${nivel}`}>
                 {respostas.map((resposta) => (
                     <div key={resposta.idComentario} className="comentario">
-                        <div className="comentario-autor">{resposta.pessoa.nomeCompleto}</div>
+                        <div className="conteiner-inline" onClick={() => handlePessoaClick(resposta.pessoa)} style={{ cursor: 'pointer' }}>
+                            <img
+                                src={`data:image/jpeg;base64, ${resposta.pessoa.fotoPerfil}`}
+                                className="foto-perfil"
+                            />
+                            <div className="publicacao-autor">{resposta.pessoa.nomeCompleto}</div>
+                        </div>
                         <div className="comentario-conteudo">{resposta.conteudo}</div>
                         <a
                             href="#"
@@ -656,9 +662,23 @@ const MuralDePublicacoes = () => {
         }
     };
 
+    useEffect(() => {
+        const handleCustomEvent = (event) => {
+            if (event.detail) {
+                handleSearchSubmit(event.detail);
+            }
+        };
+
+        document.addEventListener('onSubmitSearch', handleCustomEvent);
+
+        return () => {
+            document.removeEventListener('onSubmitSearch', handleCustomEvent);
+        };
+    }, []);
+
     return (
         <div className="mural-container" style={{ overflow: 'hidden', overflowY: 'auto' }}>
-            <TopMenu onSearchSubmit={handleSearchSubmit} searchText={textoDeBuscaRef.current} />
+
             <h1></h1>
             {publicacoes.length > 0 && (
                 <div className="input-container" onClick={abrirPopup}>
@@ -667,7 +687,6 @@ const MuralDePublicacoes = () => {
                     </div>
                 </div>
             )}
-
 
             <ToastContainer />
 
@@ -707,13 +726,16 @@ const MuralDePublicacoes = () => {
                                     <div className="publicacao-autor">{publicacao.pessoa.nomeCompleto}</div>
                                 </div>
                                 <div className="publicacao-info-container">
-                                    <h2 className="publicacao-titulo">{publicacao.titulo}</h2>
-                                    <span className="separator"></span>
-                                    {publicacao.categoria && (
-                                        <div className="publicacao-categoria" onClick={() => handleCategoriaClick(publicacao.categoria)} style={{ cursor: 'pointer' }}>
-                                            <div className="categoria-tag">{publicacao.categoria.dsNome}</div>
-                                        </div>
-                                    )}
+                                    <h2 className="publicacao-titulo">
+                                        {publicacao.titulo}
+                                        <span className="separator"></span>
+                                        {publicacao.categoria && (
+                                            <span className="categoria-tag" onClick={() => handleCategoriaClick(publicacao.categoria)} style={{ cursor: 'pointer' }}>
+                                                {publicacao.categoria.dsNome}
+                                            </span>
+                                        )}
+                                    </h2>
+
                                 </div>
                             </div>
                             <div className="texto">
@@ -775,7 +797,13 @@ const MuralDePublicacoes = () => {
 
                                     {publicacao.comentarios.map((comentario) => (
                                         <div key={comentario.idComentario} className={`comentario ${getClassForRespostaNivel(comentario.nivel)}`}>
-                                            <div className="comentario-autor">{comentario.pessoa.nomeCompleto}</div>
+                                            <div className="conteiner-inline" onClick={() => handlePessoaClick(comentario.pessoa)} style={{ cursor: 'pointer' }}>
+                                                <img
+                                                    src={`data:image/jpeg;base64, ${comentario.pessoa.fotoPerfil}`}
+                                                    className="foto-perfil"
+                                                />
+                                                <div className="publicacao-autor">{comentario.pessoa.nomeCompleto}</div>
+                                            </div>
 
                                             <div className="comentario-conteudo">{comentario.conteudo}</div>
                                             <a

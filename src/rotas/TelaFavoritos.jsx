@@ -261,7 +261,13 @@ const TelaFavoritos = () => {
             <div className={`respostas - resposta - nivel - ${nivel}`}>
                 {respostas.map((resposta) => (
                     <div key={resposta.idComentario} className="comentario">
-                        <div className="comentario-autor">{resposta.pessoa.nomeCompleto}</div>
+                        <div className="conteiner-inline" onClick={() => handlePessoaClick(resposta.pessoa)} style={{ cursor: 'pointer' }}>
+                            <img
+                                src={`data:image/jpeg;base64, ${resposta.pessoa.fotoPerfil}`}
+                                className="foto-perfil"
+                            />
+                            <div className="publicacao-autor">{resposta.pessoa.nomeCompleto}</div>
+                        </div>
                         <div className="comentario-conteudo">{resposta.conteudo}</div>
                         <a
                             href="#"
@@ -308,8 +314,7 @@ const TelaFavoritos = () => {
 
         <div className="mural-container" style={{ overflow: 'hidden', overflowY: 'auto' }}>
             <TopMenu />
-            <div style={{ height: '35px' }}></div>
-
+            <div style={{ height: '70px' }}></div>
             <div className="publicacoes-categoria-container" ref={publicacoesContainerRef}>
                 {publicacoes.map((publicacao, index) => (
                     <div key={`${publicacao.idPublicacao} - ${index}`} className="publicacao">
@@ -401,7 +406,13 @@ const TelaFavoritos = () => {
 
                                     {publicacao.comentarios.map((comentario) => (
                                         <div key={comentario.idComentario} className={`comentario ${getClassForRespostaNivel(comentario.nivel)} `}>
-                                            <div className="comentario-autor">{comentario.pessoa.nomeCompleto}</div>
+                                            <div className="conteiner-inline" onClick={() => handlePessoaClick(comentario.pessoa)} style={{ cursor: 'pointer' }}>
+                                                <img
+                                                    src={`data:image/jpeg;base64, ${comentario.pessoa.fotoPerfil}`}
+                                                    className="foto-perfil"
+                                                />
+                                                <div className="publicacao-autor">{comentario.pessoa.nomeCompleto}</div>
+                                            </div>
 
                                             <div className="comentario-conteudo">{comentario.conteudo}</div>
                                             <a
